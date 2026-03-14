@@ -921,6 +921,13 @@
       downloadBtn.download = `generated-${Date.now()}.${ext}`;
 
       setState('image');
+
+      // Scroll image into view after it fades in
+      if (!restored) {
+        setTimeout(() => {
+          outputImageWrap.scrollIntoView({ behavior: 'smooth', block: 'center' });
+        }, 100);
+      }
     }
 
     function restoreFromCache() {
