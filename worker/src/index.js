@@ -38,7 +38,7 @@ export default {
     }
 
     const allowedModels = [
-      'gemini-2.5-flash-preview-image-generation',
+      'gemini-2.5-flash-image',
     ];
     const safeModel = allowedModels.includes(model) ? model : allowedModels[0];
 
