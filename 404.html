@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <title>markovw — Software Engineer</title>
+    <script>
+      // SPA GitHub Pages redirect trick
+      // When GitHub Pages 404s on a client-side route like /generate,
+      // this page saves the intended path and redirects to index.html
+      // where the React router picks it back up.
+      var path = window.location.pathname;
+      // Only redirect if it's not actually missing (i.e. a SPA route)
+      sessionStorage.setItem('spa_redirect', path + window.location.search + window.location.hash);
+      window.location.replace('/');
+    </script>
+  </head>
+  <body></body>
+</html>
