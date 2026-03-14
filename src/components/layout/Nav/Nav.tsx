@@ -1,4 +1,5 @@
 import { useScrolled } from '../../../hooks/useScrolled'
+import { scrollToSection } from '../../../utils/scrollToSection'
 import SignalOrb from '../SignalOrb/SignalOrb'
 import styles from './Nav.module.css'
 
@@ -17,11 +18,6 @@ const NAV_LINKS: NavLink[] = [
 
 export default function Nav() {
   const scrolled = useScrolled()
-
-  function scrollToSection(target: string) {
-    const el = document.querySelector(target)
-    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' })
-  }
 
   return (
     <nav

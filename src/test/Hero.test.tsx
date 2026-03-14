@@ -12,20 +12,23 @@ describe('Hero', () => {
   })
 
   it('scrolls to the about section from the primary CTA', () => {
-    const about = document.createElement('div')
+    const about = document.createElement('section')
     about.id = 'about'
-    const aboutScrollIntoView = vi.fn()
-    Object.defineProperty(about, 'scrollIntoView', {
+    const label = document.createElement('p')
+    label.className = 'label'
+    const labelScrollIntoView = vi.fn()
+    Object.defineProperty(label, 'scrollIntoView', {
       writable: true,
-      value: aboutScrollIntoView,
+      value: labelScrollIntoView,
     })
+    about.appendChild(label)
     document.body.appendChild(about)
 
     render(<Hero />)
 
     fireEvent.click(screen.getByRole('button', { name: 'Explore Mission' }))
 
-    expect(aboutScrollIntoView).toHaveBeenCalledWith({
+    expect(labelScrollIntoView).toHaveBeenCalledWith({
       behavior: 'smooth',
       block: 'start',
     })

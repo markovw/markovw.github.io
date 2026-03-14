@@ -1,4 +1,5 @@
 import { useState, useEffect, useRef, useCallback } from 'react'
+import { scrollToSection } from '../../../utils/scrollToSection'
 import styles from './SignalOrb.module.css'
 
 interface NavLink {
@@ -99,11 +100,6 @@ export default function SignalOrb() {
       if (closeTimerRef.current) clearTimeout(closeTimerRef.current)
     }
   }, [])
-
-  function scrollToSection(target: string) {
-    const el = document.querySelector(target)
-    if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' })
-  }
 
   function handleLinkClick(target: string) {
     closeHud()

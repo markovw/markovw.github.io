@@ -1,9 +1,5 @@
+import { scrollToSection } from '../../../utils/scrollToSection'
 import styles from './Hero.module.css'
-
-function scrollToSection(target: string) {
-  const el = document.querySelector(target)
-  if (el) el.scrollIntoView({ behavior: 'smooth', block: 'start' })
-}
 
 export default function Hero() {
   return (

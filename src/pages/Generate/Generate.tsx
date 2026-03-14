@@ -6,6 +6,7 @@ import {
   type KeyboardEvent,
 } from 'react'
 import { Link } from 'react-router-dom'
+import { shouldCenterElementInViewport } from './viewport'
 import styles from './Generate.module.css'
 
 const PROXY_URL =
@@ -173,18 +174,6 @@ export default function Generate() {
       saveCache({ b64, mimeType, prompt: trimmedPrompt, ratio: currentRatio, model })
       commitImage(b64, mimeType, trimmedPrompt, currentRatio, model, false)
 
-      // Scroll to image if not in viewport
-      requestAnimationFrame(() =>
-        requestAnimationFrame(() => {
-          const wrap = imageWrapRef.current
-          if (!wrap) return
-          const rect = wrap.getBoundingClientRect()
-          const inView = rect.top >= 0 && rect.bottom <= window.innerHeight
-          if (!inView) {
-            wrap.scrollIntoView({ behavior: 'smooth', block: 'center' })
-          }
-        })
-      )
     } catch (err) {
       if (err instanceof Error && err.name === 'AbortError') {
         setOutputState('placeholder')
@@ -211,6 +200,18 @@ export default function Generate() {
     if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
       e.preventDefault()
       void generate()
+    }
+  }
+
+  function handleGeneratedImageLoad() {
+    setImgLoaded(true)
+
+    const wrap = imageWrapRef.current
+    if (!wrap) return
+
+    const rect = wrap.getBoundingClientRect()
+    if (shouldCenterElementInViewport(rect, window.innerHeight)) {
+      wrap.scrollIntoView({ behavior: 'smooth', block: 'center' })
     }
   }
 
@@ -319,12 +320,15 @@ export default function Generate() {
         )}
 
         {outputState === 'image' && imageData && (
-          <div ref={imageWrapRef}>
+          <div
+            ref={imageWrapRef}
+            className={`${styles.outputImageStage} ${imgLoaded ? styles.outputImageStageLoaded : ''}`}
+          >
             <img
               className={`${styles.outputImg} ${imgLoaded ? styles.outputImgLoaded : ''}`}
               src={imageData.blobUrl}
               alt={`Generated: ${imageData.prompt}`}
-              onLoad={() => setImgLoaded(true)}
+              onLoad={handleGeneratedImageLoad}
             />
             <div className={styles.outputMeta}>
               <div className={styles.metaInfo}>
