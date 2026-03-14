@@ -1,0 +1,43 @@
+.nebula {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  overflow: hidden;
+  clip-path: inset(0); /* iOS Safari: overflow:hidden unreliable on fixed */
+}
+
+.nebulaBlob {
+  position: absolute;
+  border-radius: 50%;
+  filter: blur(80px);
+  opacity: .6;
+}
+
+.nebulaBlob1 {
+  width: clamp(400px, 70vw, 900px);
+  height: clamp(400px, 70vw, 900px);
+  top: -20%;
+  left: -15%;
+  background: radial-gradient(circle, rgba(109,40,217,.25) 0%, transparent 70%);
+  animation: nebulaDrift 28s ease-in-out infinite alternate;
+}
+
+.nebulaBlob2 {
+  width: clamp(300px, 55vw, 700px);
+  height: clamp(300px, 55vw, 700px);
+  bottom: -10%;
+  right: -10%;
+  background: radial-gradient(circle, rgba(15,80,180,.2) 0%, transparent 70%);
+  animation: nebulaDrift 34s ease-in-out infinite alternate-reverse;
+}
+
+.nebulaBlob3 {
+  width: clamp(200px, 40vw, 500px);
+  height: clamp(200px, 40vw, 500px);
+  top: 40%;
+  left: 60%;
+  background: radial-gradient(circle, rgba(34,211,238,.08) 0%, transparent 70%);
+  animation: nebulaDrift 20s ease-in-out infinite alternate;
+  animation-delay: -10s;
+}

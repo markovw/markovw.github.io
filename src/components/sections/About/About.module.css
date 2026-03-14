@@ -1,0 +1,188 @@
+#about { position: relative; z-index: 1; }
+
+.aboutGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--sp-8);
+  align-items: center;
+}
+
+@media (min-width: 900px) {
+  .aboutGrid { grid-template-columns: 1fr 1fr; }
+}
+
+.aboutBody p {
+  font-size: clamp(15px, 1.8vw, 17px);
+  color: var(--c-text-2);
+  line-height: 1.9;
+  margin-bottom: var(--sp-4);
+}
+
+.aboutBody p:last-of-type { margin-bottom: 0; }
+
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: var(--sp-3);
+  margin-top: var(--sp-5);
+}
+
+@media (min-width: 768px) {
+  .statsGrid { margin-top: var(--sp-7); }
+}
+
+.statCard {
+  padding: var(--sp-5);
+  background: var(--c-surface);
+  border: 1px solid var(--c-border);
+  border-radius: var(--r-md);
+  text-align: center;
+  transition: border-color 300ms ease, transform 300ms var(--ease-spring);
+}
+
+.statCard:hover {
+  border-color: rgba(129,140,248,.3);
+  transform: translateY(-3px);
+}
+
+.statNum {
+  font-size: clamp(22px, 3vw, 32px);
+  font-weight: 700;
+  color: var(--c-text-1);
+  line-height: 1;
+  margin-bottom: var(--sp-2);
+}
+
+.statNum sup { font-size: .5em; color: var(--c-cyan); vertical-align: super; }
+
+.statDesc {
+  font-family: var(--ff-mono);
+  font-size: 10px;
+  letter-spacing: .1em;
+  text-transform: uppercase;
+  color: var(--c-text-3);
+}
+
+/* ────── Planet scene ────── */
+.planetScene {
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: var(--sp-7);
+  overflow: hidden;
+}
+
+.planet {
+  width: clamp(220px, 40vw, 320px);
+  height: clamp(220px, 40vw, 320px);
+  border-radius: 50%;
+  position: relative;
+  background:
+    radial-gradient(circle at 32% 28%,
+      #2e1065 0%,
+      #1e1b4b 30%,
+      #0c0c2e 65%,
+      #050510 100%);
+  box-shadow:
+    inset -25px -15px 50px rgba(0,0,0,.6),
+    inset 15px 10px 40px rgba(129,140,248,.12),
+    0 0 60px rgba(109,40,217,.2),
+    0 0 120px rgba(109,40,217,.1);
+  overflow: hidden;
+}
+
+.planet::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background:
+    repeating-linear-gradient(
+      -15deg,
+      transparent 0px,
+      transparent 18px,
+      rgba(129,140,248,.04) 18px,
+      rgba(129,140,248,.04) 20px
+    );
+  animation: surfaceRotate 60s linear infinite;
+}
+
+.planet::after {
+  content: '';
+  position: absolute;
+  width: 70%; height: 20%;
+  background: rgba(129,140,248,.06);
+  border-radius: 50%;
+  top: 30%; left: 15%;
+  filter: blur(12px);
+}
+
+.ringWrap {
+  position: absolute;
+  width: 160%; height: 30%;
+  pointer-events: none;
+}
+
+.ring {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+}
+
+.ring1 {
+  border: 1.5px solid rgba(129,140,248,.22);
+  box-shadow: 0 0 12px rgba(129,140,248,.1);
+}
+
+.ring2 {
+  inset: -14px;
+  border: 1px solid rgba(34,211,238,.12);
+}
+
+.satelliteOrbit {
+  position: absolute;
+  width: 140%; height: 140%;
+  top: 50%; left: 50%;
+  transform: translate(-50%,-50%);
+  animation: orbitAnim 12s linear infinite;
+}
+
+.satelliteOrbit::after {
+  content: '🛸';
+  position: absolute;
+  top: 0; left: 50%;
+  font-size: 18px;
+  transform: translateX(-50%) translateY(-50%);
+  filter: drop-shadow(0 0 8px rgba(34,211,238,.6));
+}
+
+.glowDot {
+  position: absolute;
+  border-radius: 50%;
+  animation: glowFloat 4s ease-in-out infinite;
+}
+
+.glowDot1 {
+  width: 6px; height: 6px;
+  background: var(--c-cyan);
+  box-shadow: 0 0 16px var(--c-cyan);
+  top: 20%; right: 10%;
+  animation-delay: -1s;
+}
+
+.glowDot2 {
+  width: 4px; height: 4px;
+  background: var(--c-violet);
+  box-shadow: 0 0 12px var(--c-violet);
+  bottom: 25%; left: 5%;
+  animation-delay: -2.5s;
+}
+
+.glowDot3 {
+  width: 5px; height: 5px;
+  background: var(--c-gold);
+  box-shadow: 0 0 14px var(--c-gold);
+  top: 60%; right: 8%;
+  animation-delay: -4s;
+}

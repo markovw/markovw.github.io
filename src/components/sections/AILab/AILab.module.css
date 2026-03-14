@@ -1,0 +1,205 @@
+#ai-lab {
+  position: relative;
+  z-index: 1;
+  text-align: center;
+}
+
+.aiLabHeader { max-width: 600px; margin-inline: auto; }
+
+.aiLabSub {
+  font-size: clamp(14px, 1.7vw, 16px);
+  color: var(--c-text-2);
+  line-height: 1.8;
+  margin-bottom: var(--sp-7);
+}
+
+/* Gemini badge */
+.aiLabBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-2);
+  padding: var(--sp-2) var(--sp-4);
+  border-radius: var(--r-full);
+  border: 1px solid rgba(251,191,36,.3);
+  background: rgba(251,191,36,.06);
+  font-family: var(--ff-mono);
+  font-size: 11px;
+  letter-spacing: .12em;
+  text-transform: uppercase;
+  color: var(--c-gold);
+  margin-bottom: var(--sp-5);
+}
+
+.aiLabBadgeIcon {
+  font-size: 12px;
+  line-height: 1;
+}
+
+/* Image preview card grid */
+.aiLabImageGrid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: var(--sp-5);
+  margin-bottom: var(--sp-7);
+}
+
+@media (max-width: 599px) {
+  .aiLabImageGrid {
+    grid-template-columns: repeat(2, 1fr);
+  }
+
+  .aiLabImageCard:last-child {
+    grid-column: 1 / -1;
+    max-width: calc(50% - var(--sp-5) / 2);
+    margin-inline: auto;
+  }
+
+  .aiLabImageCard {
+    aspect-ratio: 3 / 2;
+  }
+}
+
+@media (min-width: 600px) {
+  .aiLabImageGrid { grid-template-columns: repeat(3, 1fr); }
+}
+
+.aiLabImageCard {
+  position: relative;
+  display: block;
+  aspect-ratio: 4 / 3;
+  border-radius: var(--r-lg);
+  border: 1px solid var(--c-border);
+  overflow: hidden;
+  cursor: pointer;
+  text-decoration: none;
+  transition:
+    border-color 320ms ease,
+    box-shadow 320ms ease,
+    transform 320ms var(--ease-spring);
+}
+
+.aiLabImageCard1 {
+  background:
+    radial-gradient(ellipse at 25% 30%, rgba(129,140,248,.55) 0%, transparent 55%),
+    radial-gradient(ellipse at 75% 70%, rgba(109,40,217,.45) 0%, transparent 50%),
+    linear-gradient(145deg, #0d0b2e 0%, #1a0a3a 50%, #070b18 100%);
+}
+
+.aiLabImageCard2 {
+  background:
+    radial-gradient(ellipse at 20% 60%, rgba(34,211,238,.5) 0%, transparent 55%),
+    radial-gradient(ellipse at 80% 30%, rgba(6,182,212,.35) 0%, transparent 50%),
+    linear-gradient(145deg, #011a20 0%, #041e2e 50%, #020c10 100%);
+}
+
+.aiLabImageCard3 {
+  background:
+    radial-gradient(ellipse at 60% 25%, rgba(251,191,36,.55) 0%, transparent 50%),
+    radial-gradient(ellipse at 30% 75%, rgba(245,158,11,.35) 0%, transparent 55%),
+    linear-gradient(145deg, #1c0f00 0%, #2d1a00 50%, #120a00 100%);
+}
+
+/* Shimmer sweep */
+.aiLabImageCard::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(
+    105deg,
+    transparent 30%,
+    rgba(255,255,255,.06) 50%,
+    transparent 70%
+  );
+  background-size: 200% 100%;
+  animation: aiCardShimmer 2.8s ease-in-out infinite;
+  z-index: 1;
+}
+
+.aiLabImageCard2::before { animation-delay: .9s; }
+.aiLabImageCard3::before { animation-delay: 1.8s; }
+
+/* Pulse glow */
+.aiLabImageCard::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  opacity: 0;
+  animation: aiCardPulse 3.5s ease-in-out infinite;
+  z-index: 0;
+}
+
+.aiLabImageCard1::after {
+  background: radial-gradient(ellipse at center, rgba(129,140,248,.18) 0%, transparent 70%);
+}
+
+.aiLabImageCard2::after {
+  background: radial-gradient(ellipse at center, rgba(34,211,238,.15) 0%, transparent 70%);
+  animation-delay: 1.1s;
+}
+
+.aiLabImageCard3::after {
+  background: radial-gradient(ellipse at center, rgba(251,191,36,.15) 0%, transparent 70%);
+  animation-delay: 2.2s;
+}
+
+/* Hover overlay */
+.aiLabCardOverlay {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: rgba(3,4,13,.55);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+  opacity: 0;
+  transition: opacity 260ms ease;
+  z-index: 2;
+}
+
+.aiLabCardOverlay span {
+  font-family: var(--ff-mono);
+  font-size: 13px;
+  letter-spacing: .1em;
+  font-weight: 700;
+  color: var(--c-text-1);
+  padding: var(--sp-3) var(--sp-5);
+  border-radius: var(--r-full);
+  border: 1px solid rgba(255,255,255,.2);
+  background: rgba(255,255,255,.06);
+}
+
+.aiLabImageCard:hover {
+  transform: translateY(-4px);
+}
+
+.aiLabImageCard1:hover {
+  border-color: rgba(129,140,248,.5);
+  box-shadow:
+    0 0 0 1px rgba(129,140,248,.12),
+    0 20px 60px rgba(129,140,248,.15),
+    0 8px 24px rgba(0,0,0,.5);
+}
+
+.aiLabImageCard2:hover {
+  border-color: rgba(34,211,238,.5);
+  box-shadow:
+    0 0 0 1px rgba(34,211,238,.12),
+    0 20px 60px rgba(34,211,238,.15),
+    0 8px 24px rgba(0,0,0,.5);
+}
+
+.aiLabImageCard3:hover {
+  border-color: rgba(251,191,36,.5);
+  box-shadow:
+    0 0 0 1px rgba(251,191,36,.12),
+    0 20px 60px rgba(251,191,36,.12),
+    0 8px 24px rgba(0,0,0,.5);
+}
+
+.aiLabImageCard:hover .aiLabCardOverlay { opacity: 1; }
+
+.aiLabCta {
+  display: flex;
+  justify-content: center;
+}

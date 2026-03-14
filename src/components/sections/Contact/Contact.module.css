@@ -1,0 +1,82 @@
+#contact {
+  position: relative;
+  z-index: 1;
+  text-align: center;
+}
+
+.contactGlow {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  overflow: hidden;
+  z-index: 0;
+}
+
+.contactGlow::before {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -55%);
+  width: clamp(480px, 80vw, 900px);
+  height: clamp(320px, 50vw, 560px);
+  background: radial-gradient(
+    ellipse at center,
+    rgba(129, 140, 248, .13) 0%,
+    rgba(34, 211, 238, .07) 45%,
+    transparent 70%
+  );
+  filter: blur(40px);
+}
+
+.contactInner {
+  position: relative;
+  z-index: 1;
+  max-width: 680px;
+  margin-inline: auto;
+}
+
+.contactHeading {
+  font-size: clamp(36px, 6vw, 64px);
+  font-weight: 700;
+  line-height: 1.06;
+  letter-spacing: -.03em;
+  color: var(--c-text-1);
+  margin-bottom: var(--sp-5);
+}
+
+.contactHeading em {
+  font-style: normal;
+  background: linear-gradient(100deg, var(--c-violet) 0%, var(--c-cyan) 100%);
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+}
+
+.contactSub {
+  font-size: clamp(14px, 1.8vw, 17px);
+  color: var(--c-text-2);
+  line-height: 1.8;
+  margin-bottom: var(--sp-7);
+}
+
+.contactCta {
+  display: flex;
+  gap: var(--sp-3);
+  flex-wrap: wrap;
+  justify-content: center;
+}
+
+@media (max-width: 479px) {
+  .contactHeading { font-size: 32px; }
+
+  .contactCta {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  .contactCta :global(.btn) {
+    width: 100%;
+    justify-content: center;
+  }
+}

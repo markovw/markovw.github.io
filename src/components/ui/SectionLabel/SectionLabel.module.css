@@ -1,0 +1,12 @@
+.labelNum {
+  color: var(--c-text-3);
+  font-size: 10px;
+}
+
+.labelLine {
+  flex: 1;
+  max-width: 40px;
+  height: 1px;
+  background: var(--c-cyan);
+  opacity: .4;
+}

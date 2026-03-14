@@ -1,0 +1,118 @@
+.hero {
+  position: relative;
+  z-index: 1;
+  min-height: 100svh;
+  display: grid;
+  place-items: center;
+  text-align: center;
+  padding: var(--sp-10) var(--sp-5) var(--sp-9);
+}
+
+.heroInner { max-width: 760px; }
+
+.heroBadge {
+  display: inline-flex;
+  align-items: center;
+  gap: var(--sp-3);
+  margin-bottom: var(--sp-6);
+  font-family: var(--ff-mono);
+  font-size: 11px;
+  letter-spacing: .18em;
+  text-transform: uppercase;
+  color: var(--c-text-3);
+  opacity: 0;
+  animation: heroReveal .9s var(--ease-out) .2s forwards;
+}
+
+.heroBadgeDot {
+  width: 6px;
+  height: 6px;
+  border-radius: 50%;
+  background: var(--c-cyan);
+  box-shadow: 0 0 10px var(--c-cyan);
+  animation: pulseDot 2s ease-in-out infinite;
+}
+
+.heroName {
+  font-size: clamp(68px, 15vw, 160px);
+  font-weight: 700;
+  line-height: .92;
+  letter-spacing: -.04em;
+  background: linear-gradient(
+    160deg,
+    #ffffff 0%,
+    #c4b5fd 40%,
+    #818cf8 65%,
+    #22d3ee 100%
+  );
+  -webkit-background-clip: text;
+  -webkit-text-fill-color: transparent;
+  background-clip: text;
+  opacity: 0;
+  animation: heroReveal .9s var(--ease-out) .4s forwards;
+}
+
+.heroSub {
+  margin-top: var(--sp-5);
+  font-size: clamp(15px, 2.2vw, 20px);
+  font-weight: 400;
+  color: var(--c-text-2);
+  line-height: 1.7;
+  max-width: 520px;
+  margin-inline: auto;
+  opacity: 0;
+  animation: heroReveal .9s var(--ease-out) .6s forwards;
+}
+
+.heroSub strong { color: var(--c-text-1); font-weight: 600; }
+
+.heroCta {
+  margin-top: var(--sp-7);
+  display: flex;
+  gap: var(--sp-3);
+  flex-wrap: wrap;
+  justify-content: center;
+  opacity: 0;
+  animation: heroReveal .9s var(--ease-out) .8s forwards;
+}
+
+.heroScrollHint {
+  position: absolute;
+  bottom: var(--sp-7);
+  left: 0;
+  right: 0;
+  margin-inline: auto;
+  width: fit-content;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: var(--sp-3);
+  opacity: 0;
+  animation: heroReveal 1s var(--ease-out) 1.4s forwards;
+}
+
+.scrollLabel {
+  font-family: var(--ff-mono);
+  font-size: 10px;
+  letter-spacing: .2em;
+  text-transform: uppercase;
+  color: var(--c-text-3);
+}
+
+.scrollTrack {
+  width: 20px;
+  height: 32px;
+  border: 1px solid var(--c-text-3);
+  border-radius: 10px;
+  display: flex;
+  justify-content: center;
+  padding-top: 5px;
+}
+
+.scrollThumb {
+  width: 3px;
+  height: 7px;
+  background: var(--c-cyan);
+  border-radius: 2px;
+  animation: scrollBounce 2.2s ease-in-out infinite;
+}

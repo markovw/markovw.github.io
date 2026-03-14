@@ -1,0 +1,171 @@
+/* ── Orb button ─────────────────────────────────────────── */
+.navOrb {
+  display: none; /* shown only on mobile via media query below */
+  position: relative;
+  width: 36px;
+  height: 36px;
+  border-radius: 50%;
+  background: rgba(34, 211, 238, .08);
+  border: 1px solid rgba(34, 211, 238, .35);
+  cursor: pointer;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  transition: background 200ms ease, border-color 200ms ease;
+}
+
+.navOrb:hover {
+  background: rgba(34, 211, 238, .14);
+  border-color: rgba(34, 211, 238, .6);
+}
+
+/* Pulsing ring via ::before */
+.navOrb::before {
+  content: '';
+  position: absolute;
+  inset: -4px;
+  border-radius: 50%;
+  border: 1.5px solid var(--c-cyan);
+  animation: orbPing 2s var(--ease-out) infinite;
+  pointer-events: none;
+}
+
+/* Icon inside orb */
+.navOrbIcon {
+  font-size: 14px;
+  line-height: 1;
+  color: var(--c-cyan);
+  user-select: none;
+  pointer-events: none;
+  transition: transform 280ms var(--ease-spring);
+}
+
+.navOrb:hover .navOrbIcon {
+  transform: rotate(15deg);
+}
+
+/* When open */
+.navOrbOpen {
+  background: rgba(34, 211, 238, .16);
+  border-color: rgba(34, 211, 238, .75);
+  box-shadow: 0 0 16px rgba(34, 211, 238, .25);
+}
+
+.navOrbOpen .navOrbIcon {
+  transform: rotate(135deg);
+}
+
+.navOrbOpen::before {
+  animation-play-state: paused;
+  opacity: .35;
+}
+
+/* ── Floating HUD panel ─────────────────────────────────── */
+.navHud {
+  position: fixed;
+  top: 60px;
+  right: var(--sp-4);
+  width: 220px;
+  background: rgba(3, 4, 13, .92);
+  backdrop-filter: blur(20px) saturate(160%);
+  -webkit-backdrop-filter: blur(20px) saturate(160%);
+  border: 1px solid rgba(255, 255, 255, .1);
+  border-radius: var(--r-md);
+  padding: var(--sp-3) 0 var(--sp-3);
+  z-index: 200;
+  transform-origin: top right;
+
+  /* Hidden state */
+  opacity: 0;
+  transform: translateY(-8px) scale(0.96);
+  pointer-events: none;
+  visibility: hidden;
+}
+
+.navHudOpen {
+  animation: hudIn 220ms var(--ease-out) forwards;
+  pointer-events: auto;
+  visibility: visible;
+}
+
+.navHudClosing {
+  animation: hudOut 180ms var(--ease-in) forwards;
+  pointer-events: none;
+}
+
+/* Nav link rows */
+.navHudList {
+  list-style: none;
+  padding: 0;
+  margin: 0;
+}
+
+.navHudList li {
+  opacity: 0;
+}
+
+.navHudOpen .navHudList li {
+  animation: linkSlide 200ms var(--ease-out) both;
+}
+
+.navHudList a {
+  display: flex;
+  align-items: center;
+  gap: var(--sp-3);
+  padding: 10px var(--sp-4);
+  font-family: var(--ff-display);
+  font-size: 13px;
+  font-weight: 500;
+  letter-spacing: .06em;
+  color: var(--c-text-2);
+  text-transform: uppercase;
+  transition: color 160ms ease, background 160ms ease;
+  cursor: pointer;
+}
+
+.navHudList a:hover {
+  color: var(--c-text-1);
+  background: rgba(255, 255, 255, .04);
+}
+
+/* Cyan left-border accent per row */
+.navHudList a::before {
+  content: '';
+  display: block;
+  width: 2px;
+  height: 14px;
+  border-radius: 1px;
+  background: var(--c-cyan);
+  opacity: .55;
+  flex-shrink: 0;
+  transition: opacity 160ms ease;
+}
+
+.navHudList a:hover::before {
+  opacity: 1;
+}
+
+.navHudDivider {
+  height: 1px;
+  background: rgba(255, 255, 255, .07);
+  margin: var(--sp-2) var(--sp-4);
+}
+
+.navHudFooter {
+  padding: var(--sp-2) var(--sp-4) 0;
+  font-family: var(--ff-mono);
+  font-size: 10px;
+  letter-spacing: .14em;
+  color: var(--c-text-3);
+  user-select: none;
+}
+
+/* ── Mobile-only visibility ─────────────────────────────── */
+@media (max-width: 639px) {
+  .navOrb { display: flex; }
+}
+
+/* On desktop the HUD is never shown */
+@media (min-width: 640px) {
+  .navHud { display: none !important; }
+}
