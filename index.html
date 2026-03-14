@@ -8,6 +8,8 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet" />
+  <!-- Must run before body renders so iOS Safari respects it -->
+  <script>if (history.scrollRestoration) history.scrollRestoration = 'manual';</script>
 
   <style>
     /* ============================================================
@@ -985,11 +987,11 @@
   <nav id="nav" role="navigation" aria-label="Main navigation">
     <div class="container">
       <div class="nav-inner">
-        <a href="#hero" class="nav-logo">// markov.dev</a>
+        <a href="javascript:void(0)" data-target="#hero" class="nav-logo">// markov.dev</a>
         <ul class="nav-links">
-          <li><a href="#about">About</a></li>
-          <li><a href="#skills">Skills</a></li>
-          <li><a href="#timeline">Journey</a></li>
+          <li><a href="javascript:void(0)" data-target="#about">About</a></li>
+          <li><a href="javascript:void(0)" data-target="#skills">Skills</a></li>
+          <li><a href="javascript:void(0)" data-target="#timeline">Journey</a></li>
         </ul>
       </div>
     </div>
@@ -1012,8 +1014,8 @@
         </p>
 
         <div class="hero-cta">
-          <a href="#about" class="btn btn-primary">Explore Mission</a>
-          <a href="#timeline" class="btn btn-ghost">View Journey</a>
+          <a href="javascript:void(0)" data-target="#about" class="btn btn-primary">Explore Mission</a>
+          <a href="javascript:void(0)" data-target="#timeline" class="btn btn-ghost">View Journey</a>
         </div>
       </div>
 
@@ -1463,17 +1465,26 @@
     }
 
     /* ═══════════════════════════════════════════════════
-       SCROLL TO TOP ON LOAD — prevent browser restoring
-       a hash-based scroll position from previous visit
+       SCROLL TO TOP — robust fix for iOS Safari bfcache
+       and hash-restoration. history.scrollRestoration =
+       'manual' is set in <head> but we also force-reset
+       on load + pageshow (back/forward cache).
     ═══════════════════════════════════════════════════ */
-    if (history.scrollRestoration) history.scrollRestoration = 'manual';
-    window.scrollTo(0, 0);
+    function forceTop() {
+      // Double rAF ensures we fire after browser scroll restoration
+      requestAnimationFrame(() => requestAnimationFrame(() => window.scrollTo(0, 0)));
+    }
+    // Clear any stale hash from URL without triggering a scroll
+    if (location.hash) history.replaceState(null, '', location.pathname + location.search);
+    window.addEventListener('load', forceTop);
+    // pageshow fires when page is restored from bfcache (iOS back/forward)
+    window.addEventListener('pageshow', e => { if (e.persisted) forceTop(); });
 
-    /* Smooth-scroll anchor links without writing hash to URL */
-    document.querySelectorAll('a[href^="#"]').forEach(link => {
-      link.addEventListener('click', e => {
-        e.preventDefault();
-        const target = document.querySelector(link.getAttribute('href'));
+    /* Smooth-scroll via data-target — href stays as javascript:void(0)
+       so the browser never writes a hash to the URL */
+    document.querySelectorAll('[data-target]').forEach(el => {
+      el.addEventListener('click', () => {
+        const target = document.querySelector(el.dataset.target);
         if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
       });
     });
