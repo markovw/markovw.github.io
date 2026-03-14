@@ -22,20 +22,20 @@ export default function Hero() {
         </p>
 
         <div className={styles.heroCta}>
-          <a
-            href="javascript:void(0)"
+          <button
+            type="button"
             className="btn btn-primary"
             onClick={() => scrollToSection('#about')}
           >
             Explore Mission
-          </a>
-          <a
-            href="javascript:void(0)"
+          </button>
+          <button
+            type="button"
             className="btn btn-ghost"
             onClick={() => scrollToSection('#timeline')}
           >
             View Journey
-          </a>
+          </button>
         </div>
       </div>
 

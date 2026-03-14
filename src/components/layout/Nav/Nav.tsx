@@ -33,9 +33,12 @@ export default function Nav() {
       <div className="container">
         <div className={styles.navInner}>
           <a
-            href="javascript:void(0)"
+            href="#hero"
             className={styles.navLogo}
-            onClick={() => scrollToSection('#hero')}
+            onClick={(e) => {
+              e.preventDefault()
+              scrollToSection('#hero')
+            }}
           >
             // markov.dev
           </a>
@@ -45,8 +48,11 @@ export default function Nav() {
             {NAV_LINKS.map((link) => (
               <li key={link.target}>
                 <a
-                  href="javascript:void(0)"
-                  onClick={() => scrollToSection(link.target)}
+                  href={link.target}
+                  onClick={(e) => {
+                    e.preventDefault()
+                    scrollToSection(link.target)
+                  }}
                 >
                   {link.label}
                 </a>

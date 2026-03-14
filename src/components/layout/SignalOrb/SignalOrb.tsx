@@ -46,7 +46,11 @@ export default function SignalOrb() {
   }, [isOpen])
 
   const toggle = useCallback(() => {
-    isOpen ? closeHud() : openHud()
+    if (isOpen) {
+      closeHud()
+      return
+    }
+    openHud()
   }, [isOpen, closeHud, openHud])
 
   // Escape key
@@ -155,8 +159,11 @@ export default function SignalOrb() {
               }
             >
               <a
-                href="javascript:void(0)"
-                onClick={() => handleLinkClick(link.target)}
+                href={link.target}
+                onClick={(e) => {
+                  e.preventDefault()
+                  handleLinkClick(link.target)
+                }}
               >
                 {link.label}
               </a>

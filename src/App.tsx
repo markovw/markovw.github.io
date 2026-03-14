@@ -1,4 +1,4 @@
-import { useEffect } from 'react'
+import { useEffect, useRef } from 'react'
 import { Routes, Route, useLocation } from 'react-router-dom'
 import Starfield from './components/background/Starfield/Starfield'
 import Nebula from './components/background/Nebula/Nebula'
@@ -9,14 +9,23 @@ const SCROLL_KEY = 'index_scroll_y'
 
 export default function App() {
   const location = useLocation()
+  const previousPathnameRef = useRef(location.pathname)
 
-  // Scroll restoration: when navigating back to Home, restore saved position
+  // Fresh loads of "/" should start at the top so the hero stays visible.
+  // Only restore when coming back to Home from another in-app route.
   useEffect(() => {
+    const previousPathname = previousPathnameRef.current
+
+    if (previousPathname === '/' && location.pathname !== '/') {
+      sessionStorage.setItem(SCROLL_KEY, String(window.scrollY))
+    }
+
     if (location.pathname === '/') {
-      const saved = sessionStorage.getItem(SCROLL_KEY)
+      const shouldRestore = previousPathname !== '/'
+      const saved = shouldRestore ? sessionStorage.getItem(SCROLL_KEY) : null
+
       if (saved !== null) {
         const y = parseInt(saved, 10)
-        // Double rAF ensures DOM is fully painted before scrolling
         requestAnimationFrame(() =>
           requestAnimationFrame(() => window.scrollTo(0, y))
         )
@@ -26,18 +35,17 @@ export default function App() {
         )
       }
     }
+    previousPathnameRef.current = location.pathname
   }, [location.pathname])
 
-  // Save scroll position when leaving Home
   useEffect(() => {
-    const handlePageHide = () => {
-      if (location.pathname === '/') {
-        sessionStorage.setItem(SCROLL_KEY, String(window.scrollY))
-      }
+    const clearSavedScroll = () => {
+      sessionStorage.removeItem(SCROLL_KEY)
     }
-    window.addEventListener('pagehide', handlePageHide)
-    return () => window.removeEventListener('pagehide', handlePageHide)
-  }, [location.pathname])
+
+    window.addEventListener('beforeunload', clearSavedScroll)
+    return () => window.removeEventListener('beforeunload', clearSavedScroll)
+  }, [])
 
   return (
     <>
