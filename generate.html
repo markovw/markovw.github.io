@@ -923,11 +923,15 @@
 
       setState('image');
 
-      // Scroll image into view — double rAF ensures display:block layout is committed
+      // Scroll image into view only if the output area isn't already visible
       if (!restored) {
         requestAnimationFrame(() => {
           requestAnimationFrame(() => {
-            outputImageWrap.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            const rect = outputImageWrap.getBoundingClientRect();
+            const inView = rect.top >= 0 && rect.bottom <= window.innerHeight;
+            if (!inView) {
+              outputImageWrap.scrollIntoView({ behavior: 'smooth', block: 'center' });
+            }
           });
         });
       }
