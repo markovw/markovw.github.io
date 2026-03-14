@@ -595,8 +595,9 @@
     }
 
     /* ============================================================
-       API KEY SETUP BANNER
+       MOBILE RESPONSIVE OVERRIDES — end of styles
     ============================================================ */
+    /* (key banner styles removed — proxy handles auth) */
     .key-banner {
       display: flex;
       align-items: flex-start;
@@ -737,33 +738,6 @@
       <p class="page-title">Image Generator</p>
     </div>
 
-    <!-- API Key Banner -->
-    <div class="key-banner" id="keyBanner">
-      <span class="key-banner-icon" aria-hidden="true">🔑</span>
-      <div class="key-banner-body">
-        <p class="key-banner-title">Google AI Studio API Key required</p>
-        <p class="key-banner-desc">Your key is stored only in your browser (localStorage) — never sent anywhere except Google's API.</p>
-
-        <div class="key-input-row" id="keyInputRow">
-          <input
-            id="keyInput"
-            class="key-input"
-            type="password"
-            placeholder="AIza..."
-            autocomplete="off"
-            spellcheck="false"
-            aria-label="API key"
-          />
-          <button class="btn-save-key" id="btnSaveKey" type="button">Save</button>
-        </div>
-
-        <div class="key-saved-row" id="keySavedRow">
-          <span class="key-saved-text">✓ Key saved locally</span>
-          <button class="btn-clear-key" id="btnClearKey" type="button">Change key</button>
-        </div>
-      </div>
-    </div>
-
     <!-- Prompt -->
     <div>
       <p class="prompt-label">Prompt</p>
@@ -881,20 +855,13 @@
 
   <script>
     /* ─── Config ────────────────────────────────────────────────── */
-    const LS_KEY      = 'gemini_api_key';
-    const API_BASE    = 'https://generativelanguage.googleapis.com/v1beta/models';
+    const PROXY_URL = 'https://gemini-image-proxy.keybananchik.workers.dev';
 
     /* ─── Elements ──────────────────────────────────────────────── */
     const promptInput   = document.getElementById('promptInput');
     const modelSelect   = document.getElementById('modelSelect');
     const ratioSelect   = document.getElementById('ratioSelect');
     const generateBtn   = document.getElementById('generateBtn');
-
-    const keyInput      = document.getElementById('keyInput');
-    const btnSaveKey    = document.getElementById('btnSaveKey');
-    const btnClearKey   = document.getElementById('btnClearKey');
-    const keyInputRow   = document.getElementById('keyInputRow');
-    const keySavedRow   = document.getElementById('keySavedRow');
 
     const outputPlaceholder = document.getElementById('outputPlaceholder');
     const outputSkeleton    = document.getElementById('outputSkeleton');
@@ -919,34 +886,6 @@
       '4:3':  [4, 3],
       '3:4':  [3, 4],
     };
-
-    /* ─── API Key management ────────────────────────────────────── */
-    function getKey() { return localStorage.getItem(LS_KEY) || ''; }
-
-    function renderKeyBanner() {
-      const saved = !!getKey();
-      keyInputRow.style.display  = saved ? 'none' : '';
-      keySavedRow.classList.toggle('visible', saved);
-    }
-
-    btnSaveKey.addEventListener('click', () => {
-      const val = keyInput.value.trim();
-      if (!val) return;
-      localStorage.setItem(LS_KEY, val);
-      keyInput.value = '';
-      renderKeyBanner();
-    });
-
-    keyInput.addEventListener('keydown', e => {
-      if (e.key === 'Enter') { e.preventDefault(); btnSaveKey.click(); }
-    });
-
-    btnClearKey.addEventListener('click', () => {
-      localStorage.removeItem(LS_KEY);
-      renderKeyBanner();
-    });
-
-    renderKeyBanner();
 
     /* ─── Auto-resize textarea ──────────────────────────────────── */
     function resizeTextarea() {
@@ -973,13 +912,6 @@
       const prompt = promptInput.value.trim();
       if (!prompt || isLoading) return;
 
-      const apiKey = getKey();
-      if (!apiKey) {
-        errorMsg.textContent = 'Please enter your Google AI Studio API key above first.';
-        setState('error');
-        return;
-      }
-
       const model = modelSelect.value;
       const ratio = ratioSelect.value;
       const [rw, rh] = ratioMap[ratio];
@@ -1002,14 +934,7 @@
         currentBlobUrl = null;
       }
 
-      const endpoint = `${API_BASE}/${model}:generateContent?key=${apiKey}`;
-      const body = {
-        contents: [{ parts: [{ text: prompt }] }],
-        generationConfig: {
-          responseModalities: ['TEXT', 'IMAGE'],
-          imageConfig: { aspectRatio: ratio }
-        }
-      };
+      const body = { prompt, model, ratio };
 
       function cleanup() {
         isLoading = false;
@@ -1019,7 +944,7 @@
       }
 
       try {
-        const res = await fetch(endpoint, {
+        const res = await fetch(PROXY_URL, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
           body: JSON.stringify(body),
