@@ -1,6 +1,29 @@
+@keyframes orbPing {
+  0% { transform: scale(1); opacity: .8; }
+  100% { transform: scale(1.7); opacity: 0; }
+}
+
+@keyframes hudIn {
+  from { opacity: 0; transform: translateY(-8px) scale(0.96); }
+  to { opacity: 1; transform: translateY(0) scale(1); }
+}
+
+@keyframes hudOut {
+  from { opacity: 1; transform: translateY(0) scale(1); }
+  to { opacity: 0; transform: translateY(-8px) scale(0.96); }
+}
+
+@keyframes linkSlide {
+  from { opacity: 0; transform: translateX(8px); }
+  to { opacity: 1; transform: translateX(0); }
+}
+
 /* ── Orb button ─────────────────────────────────────────── */
 .navOrb {
   display: none; /* shown only on mobile via media query below */
+  appearance: none;
+  -webkit-appearance: none;
+  padding: 0;
   position: relative;
   width: 36px;
   height: 36px;
@@ -32,16 +55,33 @@
 
 /* Icon inside orb */
 .navOrbIcon {
+  display: grid;
+  place-items: center;
   font-size: 14px;
   line-height: 1;
   color: var(--c-cyan);
   user-select: none;
   pointer-events: none;
-  transition: transform 280ms var(--ease-spring);
+}
+
+.navOrbIcon svg {
+  width: 14px;
+  height: 14px;
+  fill: currentColor;
+  display: block;
+  transform-origin: center;
+  transition:
+    transform 360ms var(--ease-spring),
+    filter 220ms ease;
+  will-change: transform;
 }
 
 .navOrb:hover .navOrbIcon {
-  transform: rotate(15deg);
+  filter: drop-shadow(0 0 6px rgba(34, 211, 238, .45));
+}
+
+.navOrb:hover .navOrbIcon svg {
+  transform: rotate(12deg);
 }
 
 /* When open */
@@ -52,7 +92,11 @@
 }
 
 .navOrbOpen .navOrbIcon {
-  transform: rotate(135deg);
+  filter: drop-shadow(0 0 8px rgba(34, 211, 238, .6));
+}
+
+.navOrbOpen .navOrbIcon svg {
+  transform: rotate(42deg) scale(1.08);
 }
 
 .navOrbOpen::before {

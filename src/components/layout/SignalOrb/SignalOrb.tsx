@@ -135,7 +135,9 @@ export default function SignalOrb() {
         onClick={toggle}
       >
         <span className={styles.navOrbIcon} aria-hidden="true">
-          ✦
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <path d="M12 2.8l1.9 5.6 5.7 1.9-5.7 1.9-1.9 5.6-1.9-5.6-5.7-1.9 5.7-1.9L12 2.8z" />
+          </svg>
         </span>
       </button>
 
