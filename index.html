@@ -112,7 +112,7 @@
       .container { padding-inline: var(--sp-8); }
     }
 
-    section { padding-block: var(--sp-9); }
+    section { padding-block: var(--sp-7); }
     @media (min-width: 768px) { section { padding-block: var(--sp-10); } }
 
     /* ============================================================
@@ -493,7 +493,11 @@
       display: grid;
       grid-template-columns: repeat(3, 1fr);
       gap: var(--sp-3);
-      margin-top: var(--sp-7);
+      margin-top: var(--sp-5);
+    }
+
+    @media (min-width: 768px) {
+      .stats-grid { margin-top: var(--sp-7); }
     }
 
     .stat-card {
@@ -635,21 +639,21 @@
       border-radius: 50%;
       animation: glowFloat 4s ease-in-out infinite;
     }
-    .glow-dot:nth-child(1) {
+    .glow-dot:nth-child(4) {
       width: 6px; height: 6px;
       background: var(--c-cyan);
       box-shadow: 0 0 16px var(--c-cyan);
       top: 20%; right: 10%;
       animation-delay: -1s;
     }
-    .glow-dot:nth-child(2) {
+    .glow-dot:nth-child(5) {
       width: 4px; height: 4px;
       background: var(--c-violet);
       box-shadow: 0 0 12px var(--c-violet);
       bottom: 25%; left: 5%;
       animation-delay: -2.5s;
     }
-    .glow-dot:nth-child(3) {
+    .glow-dot:nth-child(6) {
       width: 5px; height: 5px;
       background: var(--c-gold);
       box-shadow: 0 0 14px var(--c-gold);
@@ -868,7 +872,11 @@
 
     .tl-item {
       position: relative;
-      margin-bottom: var(--sp-8);
+      margin-bottom: var(--sp-6);
+    }
+
+    @media (min-width: 768px) {
+      .tl-item { margin-bottom: var(--sp-8); }
     }
 
     .tl-item:last-child { margin-bottom: 0; }
@@ -940,6 +948,92 @@
     }
 
     /* ============================================================
+       CONTACT
+    ============================================================ */
+    #contact {
+      position: relative;
+      z-index: 1;
+      text-align: center;
+    }
+
+    .contact-glow {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      overflow: hidden;
+      z-index: 0;
+    }
+
+    .contact-glow::before {
+      content: '';
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -55%);
+      width: clamp(480px, 80vw, 900px);
+      height: clamp(320px, 50vw, 560px);
+      background: radial-gradient(
+        ellipse at center,
+        rgba(129, 140, 248, .13) 0%,
+        rgba(34, 211, 238, .07) 45%,
+        transparent 70%
+      );
+      filter: blur(40px);
+    }
+
+    .contact-inner {
+      position: relative;
+      z-index: 1;
+      max-width: 680px;
+      margin-inline: auto;
+    }
+
+    .contact-heading {
+      font-size: clamp(36px, 6vw, 64px);
+      font-weight: 700;
+      line-height: 1.06;
+      letter-spacing: -.03em;
+      color: var(--c-text-1);
+      margin-bottom: var(--sp-5);
+    }
+
+    .contact-heading em {
+      font-style: normal;
+      background: linear-gradient(100deg, var(--c-violet) 0%, var(--c-cyan) 100%);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+      background-clip: text;
+    }
+
+    .contact-sub {
+      font-size: clamp(14px, 1.8vw, 17px);
+      color: var(--c-text-2);
+      line-height: 1.8;
+      margin-bottom: var(--sp-7);
+    }
+
+    .contact-cta {
+      display: flex;
+      gap: var(--sp-3);
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+
+    @media (max-width: 479px) {
+      .contact-heading { font-size: 32px; }
+
+      .contact-cta {
+        flex-direction: column;
+        align-items: stretch;
+      }
+
+      .contact-cta .btn {
+        width: 100%;
+        justify-content: center;
+      }
+    }
+
+    /* ============================================================
        FOOTER
     ============================================================ */
     footer {
@@ -994,6 +1088,7 @@
           <li><a href="javascript:void(0)" data-target="#about">About</a></li>
           <li><a href="javascript:void(0)" data-target="#skills">Skills</a></li>
           <li><a href="javascript:void(0)" data-target="#timeline">Journey</a></li>
+          <li><a href="javascript:void(0)" data-target="#contact">Contact</a></li>
         </ul>
       </div>
     </div>
@@ -1292,6 +1387,49 @@
               Shipped 3 production applications to the App Store. Migrated legacy UIKit
               codebases to SwiftUI. First deep encounters with performance profiling and Instruments.
             </p>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
+    <!-- ══════════════════════════════════════════ CONTACT -->
+    <section id="contact" aria-labelledby="contact-heading">
+      <div class="contact-glow" aria-hidden="true"></div>
+      <div class="container">
+        <div class="contact-inner">
+
+          <p class="label reveal" style="justify-content: center;">
+            <span class="label-num">04</span>
+            <span class="label-line"></span>
+            Get in Touch
+          </p>
+
+          <h2 id="contact-heading" class="contact-heading reveal reveal-d1">
+            Let's build something <em>together.</em>
+          </h2>
+
+          <p class="contact-sub reveal reveal-d2">
+            Open to backend roles, collaborations, and interesting projects.
+          </p>
+
+          <div class="contact-cta reveal reveal-d3">
+            <a
+              href="https://t.me/markovw"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="btn btn-primary"
+            >
+              🚀 Message on Telegram
+            </a>
+            <a
+              href="https://github.com/markovw"
+              target="_blank"
+              rel="noopener noreferrer"
+              class="btn btn-ghost"
+            >
+              View on GitHub
+            </a>
           </div>
 
         </div>
