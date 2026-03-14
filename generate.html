@@ -1,0 +1,895 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="description" content="AI Image Generator — free, no account needed. Powered by Pollinations.ai." />
+  <title>Image Generator — Markov</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@300;400;500;600;700&family=Space+Mono:ital,wght@0,400;0,700;1,400&display=swap" rel="stylesheet" />
+
+  <style>
+    /* ============================================================
+       DESIGN TOKENS — mirrors index.html
+    ============================================================ */
+    :root {
+      --c-void:       #03040d;
+      --c-deep:       #070b18;
+      --c-surface:    rgba(255,255,255,.04);
+      --c-surface-2:  rgba(255,255,255,.07);
+      --c-border:     rgba(255,255,255,.08);
+      --c-border-hi:  rgba(255,255,255,.16);
+
+      --c-cyan:   #22d3ee;
+      --c-violet: #818cf8;
+      --c-gold:   #fbbf24;
+      --c-pink:   #f472b6;
+      --c-green:  #4ade80;
+
+      --c-text-1: #f1f5f9;
+      --c-text-2: #94a3b8;
+      --c-text-3: #475569;
+
+      --sp-1:  4px;
+      --sp-2:  8px;
+      --sp-3:  12px;
+      --sp-4:  16px;
+      --sp-5:  24px;
+      --sp-6:  32px;
+      --sp-7:  48px;
+      --sp-8:  64px;
+      --sp-9:  96px;
+
+      --ff-display: 'Space Grotesk', system-ui, sans-serif;
+      --ff-mono:    'Space Mono', 'Courier New', monospace;
+
+      --r-sm:   8px;
+      --r-md:   16px;
+      --r-lg:   24px;
+      --r-full: 9999px;
+
+      --ease-out:    cubic-bezier(.16,1,.3,1);
+      --ease-spring: cubic-bezier(.34,1.56,.64,1);
+    }
+
+    /* ============================================================
+       RESET & BASE
+    ============================================================ */
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { font-size: 16px; overflow-x: hidden; }
+
+    body {
+      font-family: var(--ff-display);
+      background: var(--c-void);
+      color: var(--c-text-1);
+      line-height: 1.6;
+      overflow-x: hidden;
+      min-height: 100svh;
+      -webkit-font-smoothing: antialiased;
+      -moz-osx-font-smoothing: grayscale;
+    }
+
+    img, svg { display: block; max-width: 100%; }
+    a { color: inherit; text-decoration: none; }
+
+    :focus-visible {
+      outline: 2px solid var(--c-cyan);
+      outline-offset: 4px;
+      border-radius: var(--r-sm);
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *, *::before, *::after {
+        animation-duration: .01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: .01ms !important;
+      }
+    }
+
+    /* ============================================================
+       NEBULA BACKGROUND
+    ============================================================ */
+    .nebula {
+      position: fixed;
+      inset: 0;
+      z-index: 0;
+      pointer-events: none;
+      overflow: hidden;
+    }
+
+    .nebula-blob {
+      position: absolute;
+      border-radius: 50%;
+      filter: blur(80px);
+      opacity: .5;
+    }
+
+    .nebula-blob-1 {
+      width: clamp(300px, 60vw, 700px);
+      height: clamp(300px, 60vw, 700px);
+      top: -20%;
+      left: -15%;
+      background: radial-gradient(circle, rgba(109,40,217,.2) 0%, transparent 70%);
+      animation: nebulaDrift 28s ease-in-out infinite alternate;
+    }
+
+    .nebula-blob-2 {
+      width: clamp(200px, 40vw, 500px);
+      height: clamp(200px, 40vw, 500px);
+      bottom: -10%;
+      right: -5%;
+      background: radial-gradient(circle, rgba(15,80,180,.18) 0%, transparent 70%);
+      animation: nebulaDrift 34s ease-in-out infinite alternate-reverse;
+    }
+
+    .nebula-blob-3 {
+      width: clamp(150px, 30vw, 380px);
+      height: clamp(150px, 30vw, 380px);
+      top: 45%;
+      left: 55%;
+      background: radial-gradient(circle, rgba(34,211,238,.07) 0%, transparent 70%);
+      animation: nebulaDrift 20s ease-in-out infinite alternate;
+      animation-delay: -10s;
+    }
+
+    @keyframes nebulaDrift {
+      from { transform: translate(0,0) scale(1); }
+      to   { transform: translate(3%,4%) scale(1.08); }
+    }
+
+    /* ============================================================
+       LAYOUT
+    ============================================================ */
+    .page-wrap {
+      position: relative;
+      z-index: 1;
+      max-width: 760px;
+      margin: 0 auto;
+      padding: var(--sp-6) var(--sp-5) var(--sp-9);
+    }
+
+    @media (min-width: 640px) {
+      .page-wrap { padding: var(--sp-7) var(--sp-6) var(--sp-9); }
+    }
+
+    /* ============================================================
+       BACK LINK + PAGE TITLE ROW
+    ============================================================ */
+    .top-bar {
+      display: flex;
+      align-items: center;
+      gap: var(--sp-4);
+      margin-bottom: var(--sp-7);
+    }
+
+    .back-link {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--sp-2);
+      font-family: var(--ff-mono);
+      font-size: 12px;
+      letter-spacing: .1em;
+      color: var(--c-text-3);
+      transition: color 200ms ease;
+      flex-shrink: 0;
+    }
+
+    .back-link:hover { color: var(--c-cyan); }
+
+    .back-arrow {
+      width: 28px;
+      height: 28px;
+      border-radius: var(--r-sm);
+      border: 1px solid var(--c-border);
+      background: var(--c-surface);
+      display: grid;
+      place-items: center;
+      transition: border-color 200ms ease, background 200ms ease;
+      flex-shrink: 0;
+    }
+
+    .back-link:hover .back-arrow {
+      border-color: rgba(34,211,238,.35);
+      background: rgba(34,211,238,.06);
+    }
+
+    .back-arrow svg {
+      width: 14px;
+      height: 14px;
+      stroke: currentColor;
+      stroke-width: 2;
+      fill: none;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+    }
+
+    .page-title {
+      font-family: var(--ff-display);
+      font-size: 13px;
+      font-weight: 500;
+      letter-spacing: .06em;
+      color: var(--c-text-3);
+    }
+
+    /* ============================================================
+       PROMPT AREA
+    ============================================================ */
+    .prompt-label {
+      font-family: var(--ff-mono);
+      font-size: 10px;
+      letter-spacing: .18em;
+      text-transform: uppercase;
+      color: var(--c-text-3);
+      margin-bottom: var(--sp-3);
+    }
+
+    .prompt-textarea {
+      width: 100%;
+      min-height: 96px;
+      padding: var(--sp-4);
+      background: var(--c-surface);
+      border: 1px solid var(--c-border);
+      border-radius: var(--r-md);
+      font-family: var(--ff-display);
+      font-size: 15px;
+      color: var(--c-text-1);
+      line-height: 1.65;
+      resize: none;
+      transition: border-color 250ms ease, box-shadow 250ms ease;
+      overflow: hidden;
+    }
+
+    .prompt-textarea::placeholder { color: var(--c-text-3); }
+
+    .prompt-textarea:focus {
+      outline: none;
+      border-color: rgba(34,211,238,.5);
+      box-shadow: 0 0 0 3px rgba(34,211,238,.1), 0 0 24px rgba(34,211,238,.08);
+    }
+
+    /* ============================================================
+       CONTROLS ROW
+    ============================================================ */
+    .controls-row {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: var(--sp-3);
+      margin-top: var(--sp-4);
+    }
+
+    .select-wrap {
+      position: relative;
+      flex: 1;
+      min-width: 130px;
+    }
+
+    .select-wrap svg {
+      position: absolute;
+      right: 12px;
+      top: 50%;
+      transform: translateY(-50%);
+      width: 14px;
+      height: 14px;
+      stroke: var(--c-text-3);
+      stroke-width: 2;
+      fill: none;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      pointer-events: none;
+    }
+
+    .select-wrap select {
+      width: 100%;
+      padding: 10px 36px 10px 14px;
+      background: var(--c-surface);
+      border: 1px solid var(--c-border);
+      border-radius: var(--r-md);
+      font-family: var(--ff-display);
+      font-size: 13px;
+      color: var(--c-text-2);
+      cursor: pointer;
+      appearance: none;
+      -webkit-appearance: none;
+      transition: border-color 200ms ease;
+    }
+
+    .select-wrap select:focus {
+      outline: none;
+      border-color: rgba(34,211,238,.4);
+    }
+
+    .select-wrap select option {
+      background: #0f172a;
+      color: var(--c-text-1);
+    }
+
+    .btn-generate {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--sp-2);
+      padding: 10px 22px;
+      border-radius: var(--r-md);
+      font-family: var(--ff-display);
+      font-size: 14px;
+      font-weight: 600;
+      letter-spacing: .04em;
+      cursor: pointer;
+      border: none;
+      min-height: 44px;
+      background: linear-gradient(135deg, var(--c-cyan) 0%, #67e8f9 100%);
+      color: #020617;
+      transition:
+        transform 250ms var(--ease-spring),
+        box-shadow 250ms ease,
+        opacity 200ms ease;
+      white-space: nowrap;
+      flex-shrink: 0;
+    }
+
+    .btn-generate:hover:not(:disabled) {
+      transform: translateY(-2px);
+      box-shadow: 0 10px 36px rgba(34,211,238,.35);
+    }
+
+    .btn-generate:active:not(:disabled) { transform: scale(.97); }
+
+    .btn-generate:disabled {
+      opacity: .55;
+      cursor: not-allowed;
+      transform: none;
+      box-shadow: none;
+    }
+
+    /* Spinner */
+    .spinner {
+      width: 14px;
+      height: 14px;
+      border: 2px solid rgba(2,6,23,.25);
+      border-top-color: rgba(2,6,23,.8);
+      border-radius: 50%;
+      animation: spin .7s linear infinite;
+      flex-shrink: 0;
+    }
+
+    @keyframes spin { to { transform: rotate(360deg); } }
+
+    /* ============================================================
+       OUTPUT AREA
+    ============================================================ */
+    .output-area {
+      margin-top: var(--sp-7);
+    }
+
+    /* Placeholder (before first generation) */
+    .output-placeholder {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      justify-content: center;
+      gap: var(--sp-4);
+      min-height: 300px;
+      border: 1.5px dashed var(--c-border);
+      border-radius: var(--r-lg);
+      color: var(--c-text-3);
+      text-align: center;
+      padding: var(--sp-7) var(--sp-5);
+      transition: border-color 300ms ease;
+    }
+
+    .output-placeholder:hover {
+      border-color: rgba(255,255,255,.14);
+    }
+
+    .placeholder-icon {
+      width: 52px;
+      height: 52px;
+      border-radius: var(--r-md);
+      background: var(--c-surface);
+      border: 1px solid var(--c-border);
+      display: grid;
+      place-items: center;
+      font-size: 22px;
+    }
+
+    .placeholder-text {
+      font-family: var(--ff-mono);
+      font-size: 11px;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      color: var(--c-text-3);
+    }
+
+    .placeholder-hint {
+      font-size: 12px;
+      color: var(--c-text-3);
+      opacity: .6;
+    }
+
+    /* Skeleton shimmer */
+    .output-skeleton {
+      display: none;
+      border-radius: var(--r-lg);
+      overflow: hidden;
+      position: relative;
+    }
+
+    .output-skeleton.visible { display: block; }
+
+    .skeleton-inner {
+      aspect-ratio: 1 / 1;
+      background: var(--c-surface-2);
+      border-radius: var(--r-lg);
+      position: relative;
+      overflow: hidden;
+    }
+
+    .skeleton-inner::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(
+        90deg,
+        transparent 0%,
+        rgba(255,255,255,.04) 40%,
+        rgba(255,255,255,.08) 50%,
+        rgba(255,255,255,.04) 60%,
+        transparent 100%
+      );
+      animation: shimmer 1.8s ease-in-out infinite;
+      background-size: 200% 100%;
+    }
+
+    @keyframes shimmer {
+      0%   { background-position: -200% 0; }
+      100% { background-position:  200% 0; }
+    }
+
+    .skeleton-label {
+      margin-top: var(--sp-4);
+      text-align: center;
+      font-family: var(--ff-mono);
+      font-size: 11px;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      color: var(--c-text-3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: var(--sp-3);
+    }
+
+    .skeleton-label .spinner {
+      border-color: rgba(255,255,255,.1);
+      border-top-color: var(--c-cyan);
+    }
+
+    /* Generated image */
+    .output-image-wrap {
+      display: none;
+    }
+
+    .output-image-wrap.visible { display: block; }
+
+    .output-img {
+      width: 100%;
+      border-radius: var(--r-lg);
+      border: 1px solid var(--c-border);
+      opacity: 0;
+      transition: opacity .5s var(--ease-out);
+    }
+
+    .output-img.loaded { opacity: 1; }
+
+    /* Below image: meta + download */
+    .output-meta {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      flex-wrap: wrap;
+      gap: var(--sp-3);
+      margin-top: var(--sp-4);
+      padding-top: var(--sp-4);
+      border-top: 1px solid var(--c-border);
+    }
+
+    .meta-info {
+      font-family: var(--ff-mono);
+      font-size: 11px;
+      letter-spacing: .06em;
+      color: var(--c-text-3);
+      line-height: 1.8;
+    }
+
+    .meta-info span { color: var(--c-text-2); }
+
+    .btn-download {
+      display: inline-flex;
+      align-items: center;
+      gap: var(--sp-2);
+      padding: 9px 18px;
+      border-radius: var(--r-md);
+      font-family: var(--ff-display);
+      font-size: 13px;
+      font-weight: 500;
+      cursor: pointer;
+      border: 1px solid var(--c-border);
+      background: var(--c-surface);
+      color: var(--c-text-2);
+      transition:
+        border-color 200ms ease,
+        background 200ms ease,
+        color 200ms ease,
+        transform 250ms var(--ease-spring);
+      text-decoration: none;
+    }
+
+    .btn-download:hover {
+      border-color: rgba(34,211,238,.35);
+      background: rgba(34,211,238,.06);
+      color: var(--c-cyan);
+      transform: translateY(-2px);
+    }
+
+    .btn-download svg {
+      width: 14px;
+      height: 14px;
+      stroke: currentColor;
+      stroke-width: 2;
+      fill: none;
+      stroke-linecap: round;
+      stroke-linejoin: round;
+      flex-shrink: 0;
+    }
+
+    /* Error state */
+    .output-error {
+      display: none;
+      align-items: flex-start;
+      gap: var(--sp-3);
+      padding: var(--sp-5);
+      border-radius: var(--r-md);
+      border: 1px solid rgba(244,114,182,.25);
+      background: rgba(244,114,182,.05);
+    }
+
+    .output-error.visible { display: flex; }
+
+    .error-icon {
+      font-size: 18px;
+      flex-shrink: 0;
+      line-height: 1.4;
+    }
+
+    .error-text {
+      font-size: 14px;
+      color: var(--c-pink);
+      line-height: 1.7;
+    }
+
+    .error-text strong {
+      display: block;
+      margin-bottom: var(--sp-1);
+    }
+
+    /* Keyboard hint */
+    .kbd-hint {
+      margin-top: var(--sp-3);
+      font-family: var(--ff-mono);
+      font-size: 10px;
+      letter-spacing: .1em;
+      color: var(--c-text-3);
+      text-align: right;
+    }
+
+    kbd {
+      display: inline-block;
+      padding: 1px 6px;
+      border-radius: 4px;
+      border: 1px solid var(--c-border);
+      background: var(--c-surface);
+      font-family: var(--ff-mono);
+      font-size: 10px;
+      color: var(--c-text-2);
+    }
+
+    /* ============================================================
+       MOBILE RESPONSIVE OVERRIDES
+    ============================================================ */
+    @media (max-width: 479px) {
+      .controls-row { flex-direction: column; align-items: stretch; }
+      .select-wrap { min-width: unset; }
+      .btn-generate { justify-content: center; }
+      .output-meta { flex-direction: column; align-items: flex-start; }
+    }
+  </style>
+</head>
+
+<body>
+  <!-- Background -->
+  <div class="nebula" aria-hidden="true">
+    <div class="nebula-blob nebula-blob-1"></div>
+    <div class="nebula-blob nebula-blob-2"></div>
+    <div class="nebula-blob nebula-blob-3"></div>
+  </div>
+
+  <div class="page-wrap">
+
+    <!-- Top bar -->
+    <div class="top-bar">
+      <a href="index.html" class="back-link" aria-label="Back to home">
+        <span class="back-arrow" aria-hidden="true">
+          <svg viewBox="0 0 24 24" aria-hidden="true">
+            <polyline points="15 18 9 12 15 6"></polyline>
+          </svg>
+        </span>
+        Back
+      </a>
+      <p class="page-title">Image Generator</p>
+    </div>
+
+    <!-- Prompt -->
+    <div>
+      <p class="prompt-label">Prompt</p>
+      <textarea
+        id="promptInput"
+        class="prompt-textarea"
+        placeholder="Describe your image..."
+        rows="3"
+        aria-label="Image prompt"
+        spellcheck="false"
+      ></textarea>
+      <p class="kbd-hint">
+        <kbd>Cmd</kbd> + <kbd>Enter</kbd> to generate
+      </p>
+    </div>
+
+    <!-- Controls -->
+    <div class="controls-row" role="group" aria-label="Generation options">
+
+      <div class="select-wrap">
+        <label for="modelSelect" class="sr-only">Model</label>
+        <select id="modelSelect" aria-label="AI model">
+          <option value="flux">flux — default</option>
+          <option value="flux-realism">flux-realism</option>
+          <option value="flux-anime">flux-anime</option>
+          <option value="flux-3d">flux-3d</option>
+          <option value="turbo">turbo — fast</option>
+        </select>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><polyline points="6 9 12 15 18 9"></polyline></svg>
+      </div>
+
+      <div class="select-wrap">
+        <label for="sizeSelect" class="sr-only">Size</label>
+        <select id="sizeSelect" aria-label="Image size">
+          <option value="1024x1024">1024 × 1024</option>
+          <option value="768x768">768 × 768</option>
+          <option value="512x512">512 × 512</option>
+          <option value="1024x768">1024 × 768</option>
+          <option value="768x1024">768 × 1024</option>
+        </select>
+        <svg viewBox="0 0 24 24" aria-hidden="true"><polyline points="6 9 12 15 18 9"></polyline></svg>
+      </div>
+
+      <button
+        id="generateBtn"
+        class="btn-generate"
+        type="button"
+        aria-live="polite"
+      >
+        Generate
+      </button>
+
+    </div>
+
+    <!-- Output -->
+    <div class="output-area" id="outputArea">
+
+      <!-- Default placeholder -->
+      <div class="output-placeholder" id="outputPlaceholder" aria-hidden="true">
+        <div class="placeholder-icon">🎨</div>
+        <p class="placeholder-text">Your image will appear here</p>
+        <p class="placeholder-hint">Enter a prompt above and press Generate</p>
+      </div>
+
+      <!-- Loading skeleton -->
+      <div class="output-skeleton" id="outputSkeleton" aria-hidden="true">
+        <div class="skeleton-inner" id="skeletonInner"></div>
+        <p class="skeleton-label">
+          <span class="spinner" aria-hidden="true"></span>
+          Generating...
+        </p>
+      </div>
+
+      <!-- Generated image -->
+      <div class="output-image-wrap" id="outputImageWrap">
+        <img
+          id="outputImg"
+          class="output-img"
+          src=""
+          alt="Generated image"
+        />
+        <div class="output-meta" id="outputMeta">
+          <div class="meta-info" id="metaInfo"></div>
+          <a id="downloadBtn" class="btn-download" download="generated.png" href="#">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path d="M21 15v4a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2v-4"></path>
+              <polyline points="7 10 12 15 17 10"></polyline>
+              <line x1="12" y1="15" x2="12" y2="3"></line>
+            </svg>
+            Download
+          </a>
+        </div>
+      </div>
+
+      <!-- Error state -->
+      <div class="output-error" id="outputError" role="alert" aria-live="assertive">
+        <span class="error-icon" aria-hidden="true">⚠</span>
+        <div class="error-text">
+          <strong>Generation failed</strong>
+          <span id="errorMsg">Something went wrong. Please try again.</span>
+        </div>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- Screen reader only utility -->
+  <style>
+    .sr-only {
+      position: absolute;
+      width: 1px;
+      height: 1px;
+      padding: 0;
+      margin: -1px;
+      overflow: hidden;
+      clip: rect(0,0,0,0);
+      white-space: nowrap;
+      border-width: 0;
+    }
+  </style>
+
+  <script>
+    /* ─── Elements ─────────────────────────────────────────────── */
+    const promptInput   = document.getElementById('promptInput');
+    const modelSelect   = document.getElementById('modelSelect');
+    const sizeSelect    = document.getElementById('sizeSelect');
+    const generateBtn   = document.getElementById('generateBtn');
+
+    const outputPlaceholder = document.getElementById('outputPlaceholder');
+    const outputSkeleton    = document.getElementById('outputSkeleton');
+    const skeletonInner     = document.getElementById('skeletonInner');
+    const outputImageWrap   = document.getElementById('outputImageWrap');
+    const outputImg         = document.getElementById('outputImg');
+    const outputMeta        = document.getElementById('outputMeta');
+    const metaInfo          = document.getElementById('metaInfo');
+    const downloadBtn       = document.getElementById('downloadBtn');
+    const outputError       = document.getElementById('outputError');
+    const errorMsg          = document.getElementById('errorMsg');
+
+    /* ─── State ─────────────────────────────────────────────────── */
+    let isLoading = false;
+    let currentAbortController = null;
+
+    /* ─── Auto-resize textarea ──────────────────────────────────── */
+    function resizeTextarea() {
+      promptInput.style.height = 'auto';
+      promptInput.style.height = promptInput.scrollHeight + 'px';
+    }
+    promptInput.addEventListener('input', resizeTextarea);
+
+    /* ─── Show/hide helpers ─────────────────────────────────────── */
+    function setState(state) {
+      outputPlaceholder.style.display = 'none';
+      outputSkeleton.classList.remove('visible');
+      outputImageWrap.classList.remove('visible');
+      outputError.classList.remove('visible');
+
+      if (state === 'placeholder') outputPlaceholder.style.display = '';
+      if (state === 'loading')     outputSkeleton.classList.add('visible');
+      if (state === 'image')       outputImageWrap.classList.add('visible');
+      if (state === 'error')       outputError.classList.add('visible');
+    }
+
+    /* ─── Skeleton aspect ratio ─────────────────────────────────── */
+    function applySkeletonAspect(width, height) {
+      skeletonInner.style.aspectRatio = `${width} / ${height}`;
+    }
+
+    /* ─── Generate ──────────────────────────────────────────────── */
+    function generate() {
+      const prompt = promptInput.value.trim();
+      if (!prompt || isLoading) return;
+
+      const model = modelSelect.value;
+      const [width, height] = sizeSelect.value.split('x').map(Number);
+      const seed = Math.floor(Math.random() * 2147483647);
+
+      const url = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?width=${width}&height=${height}&model=${model}&nologo=true&seed=${seed}`;
+
+      /* Cancel any in-flight request */
+      if (currentAbortController) currentAbortController.abort();
+      currentAbortController = new AbortController();
+      const signal = currentAbortController.signal;
+
+      isLoading = true;
+      generateBtn.disabled = true;
+      generateBtn.innerHTML = '<span class="spinner" aria-hidden="true"></span> Generating…';
+
+      applySkeletonAspect(width, height);
+      setState('loading');
+
+      /* Pollinations serves the image directly — we load via <img> tag.
+         We use an Image object to detect load/error events before
+         swapping the visible element, which avoids a flash of broken img. */
+      const tempImg = new Image();
+
+      function cleanup() {
+        tempImg.onload = null;
+        tempImg.onerror = null;
+        isLoading = false;
+        generateBtn.disabled = false;
+        generateBtn.innerHTML = 'Generate';
+        currentAbortController = null;
+      }
+
+      tempImg.onload = function () {
+        if (signal.aborted) return;
+
+        outputImg.src = url;
+        outputImg.alt = `Generated: ${prompt}`;
+        outputImg.classList.remove('loaded');
+
+        /* Force reflow then fade in */
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => outputImg.classList.add('loaded'));
+        });
+
+        /* Meta row */
+        metaInfo.innerHTML =
+          `Model: <span>${model}</span> &nbsp;|&nbsp; ` +
+          `Size: <span>${width}×${height}</span> &nbsp;|&nbsp; ` +
+          `Seed: <span>${seed}</span>`;
+
+        /* Download: use the same URL as the image */
+        downloadBtn.href = url;
+        downloadBtn.download = `generated-${seed}.png`;
+
+        setState('image');
+        cleanup();
+      };
+
+      tempImg.onerror = function () {
+        if (signal.aborted) return;
+        errorMsg.textContent = 'Could not load the image. The Pollinations API may be busy — try again in a moment.';
+        setState('error');
+        cleanup();
+      };
+
+      /* Abort: reset to placeholder */
+      signal.addEventListener('abort', () => {
+        tempImg.src = '';
+        cleanup();
+        setState('placeholder');
+      });
+
+      tempImg.src = url;
+    }
+
+    /* ─── Button click ──────────────────────────────────────────── */
+    generateBtn.addEventListener('click', generate);
+
+    /* ─── Cmd / Ctrl + Enter ────────────────────────────────────── */
+    promptInput.addEventListener('keydown', (e) => {
+      if (e.key === 'Enter' && (e.metaKey || e.ctrlKey)) {
+        e.preventDefault();
+        generate();
+      }
+    });
+
+    /* ─── Init ──────────────────────────────────────────────────── */
+    setState('placeholder');
+  </script>
+</body>
+</html>

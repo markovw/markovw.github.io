@@ -948,6 +948,158 @@
     }
 
     /* ============================================================
+       AI LAB
+    ============================================================ */
+    #ai-lab { position: relative; z-index: 1; }
+
+    .ai-lab-grid {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: var(--sp-7);
+      align-items: center;
+    }
+
+    @media (min-width: 900px) {
+      .ai-lab-grid { grid-template-columns: 1fr 1fr; }
+    }
+
+    .ai-lab-body { max-width: 480px; }
+
+    .ai-lab-body .h2 { margin-bottom: var(--sp-3); }
+
+    .ai-lab-sub {
+      font-size: clamp(14px, 1.7vw, 16px);
+      color: var(--c-text-2);
+      line-height: 1.8;
+      margin-bottom: var(--sp-6);
+    }
+
+    /* Preview card */
+    .ai-lab-card {
+      position: relative;
+      padding: var(--sp-5);
+      background: var(--c-surface);
+      border: 1px solid rgba(34,211,238,.2);
+      border-radius: var(--r-lg);
+      overflow: hidden;
+      transition:
+        border-color 300ms ease,
+        box-shadow 300ms ease,
+        transform 300ms var(--ease-spring);
+    }
+
+    .ai-lab-card::before {
+      content: '';
+      position: absolute;
+      inset: -1px;
+      border-radius: inherit;
+      background: linear-gradient(
+        135deg,
+        rgba(34,211,238,.1) 0%,
+        rgba(129,140,248,.06) 50%,
+        transparent 100%
+      );
+      pointer-events: none;
+      z-index: 0;
+    }
+
+    .ai-lab-card:hover {
+      border-color: rgba(34,211,238,.38);
+      box-shadow:
+        0 0 0 1px rgba(34,211,238,.1),
+        0 20px 60px rgba(34,211,238,.1),
+        0 8px 24px rgba(0,0,0,.4);
+      transform: translateY(-4px);
+    }
+
+    .ai-lab-card > * { position: relative; z-index: 1; }
+
+    /* 3-thumbnail preview grid */
+    .ai-lab-thumbs {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: var(--sp-3);
+      margin-bottom: var(--sp-5);
+    }
+
+    .ai-lab-thumb {
+      aspect-ratio: 1 / 1;
+      border-radius: var(--r-md);
+      border: 1px solid var(--c-border);
+      overflow: hidden;
+      position: relative;
+    }
+
+    .ai-lab-thumb-1 {
+      background:
+        radial-gradient(circle at 30% 30%, rgba(34,211,238,.35) 0%, transparent 55%),
+        radial-gradient(circle at 75% 75%, rgba(129,140,248,.3) 0%, transparent 50%),
+        linear-gradient(135deg, #0c0c2e 0%, #070b18 100%);
+    }
+
+    .ai-lab-thumb-2 {
+      background:
+        radial-gradient(circle at 60% 25%, rgba(251,191,36,.3) 0%, transparent 50%),
+        radial-gradient(circle at 20% 70%, rgba(244,114,182,.25) 0%, transparent 55%),
+        linear-gradient(135deg, #1a0b1e 0%, #0a0510 100%);
+    }
+
+    .ai-lab-thumb-3 {
+      background:
+        radial-gradient(circle at 50% 40%, rgba(74,222,128,.25) 0%, transparent 55%),
+        radial-gradient(circle at 80% 80%, rgba(34,211,238,.2) 0%, transparent 45%),
+        linear-gradient(135deg, #031a0e 0%, #020c07 100%);
+    }
+
+    /* Inner star-like detail on each thumb */
+    .ai-lab-thumb::after {
+      content: '';
+      position: absolute;
+      inset: 0;
+      background:
+        radial-gradient(1.5px 1.5px at 20% 20%, rgba(255,255,255,.7) 0%, transparent 100%),
+        radial-gradient(1px 1px at 60% 55%, rgba(255,255,255,.5) 0%, transparent 100%),
+        radial-gradient(1px 1px at 80% 30%, rgba(255,255,255,.6) 0%, transparent 100%),
+        radial-gradient(1.5px 1.5px at 40% 75%, rgba(255,255,255,.4) 0%, transparent 100%);
+    }
+
+    .ai-lab-card-label {
+      font-family: var(--ff-mono);
+      font-size: 10px;
+      letter-spacing: .14em;
+      text-transform: uppercase;
+      color: var(--c-text-3);
+      margin-bottom: var(--sp-2);
+    }
+
+    .ai-lab-card-desc {
+      font-size: 13px;
+      color: var(--c-text-2);
+      line-height: 1.6;
+    }
+
+    /* Animated glow orb behind the card */
+    .ai-lab-glow {
+      position: absolute;
+      top: 50%;
+      left: 50%;
+      transform: translate(-50%, -50%);
+      width: 300px;
+      height: 300px;
+      border-radius: 50%;
+      background: radial-gradient(circle, rgba(34,211,238,.07) 0%, transparent 70%);
+      filter: blur(40px);
+      pointer-events: none;
+      z-index: 0;
+      animation: aiLabGlow 6s ease-in-out infinite alternate;
+    }
+
+    @keyframes aiLabGlow {
+      from { transform: translate(-50%, -50%) scale(1); opacity: .7; }
+      to   { transform: translate(-50%, -50%) scale(1.25); opacity: 1; }
+    }
+
+    /* ============================================================
        CONTACT
     ============================================================ */
     #contact {
@@ -1088,6 +1240,7 @@
           <li><a href="javascript:void(0)" data-target="#about">About</a></li>
           <li><a href="javascript:void(0)" data-target="#skills">Skills</a></li>
           <li><a href="javascript:void(0)" data-target="#timeline">Journey</a></li>
+          <li><a href="javascript:void(0)" data-target="#ai-lab">AI Lab</a></li>
           <li><a href="javascript:void(0)" data-target="#contact">Contact</a></li>
         </ul>
       </div>
@@ -1393,6 +1546,49 @@
       </div>
     </section>
 
+    <!-- ══════════════════════════════════════════ AI LAB -->
+    <section id="ai-lab" aria-labelledby="ai-lab-heading">
+      <div class="container">
+        <div class="ai-lab-grid">
+
+          <!-- Body -->
+          <div class="ai-lab-body">
+            <p class="label reveal">
+              <span class="label-num">04</span>
+              <span class="label-line"></span>
+              AI Lab
+            </p>
+
+            <h2 id="ai-lab-heading" class="h2 reveal reveal-d1">
+              Generate images<br>with <em>AI.</em>
+            </h2>
+
+            <p class="ai-lab-sub reveal reveal-d2">
+              Free, no account needed. Powered by Pollinations.ai.
+              Type a prompt, pick a model, and watch it render.
+            </p>
+
+            <a href="generate.html" class="btn btn-primary reveal reveal-d3">
+              Open Generator →
+            </a>
+          </div>
+
+          <!-- Preview card -->
+          <div class="ai-lab-card reveal reveal-d2" aria-hidden="true">
+            <div class="ai-lab-glow"></div>
+            <div class="ai-lab-thumbs">
+              <div class="ai-lab-thumb ai-lab-thumb-1"></div>
+              <div class="ai-lab-thumb ai-lab-thumb-2"></div>
+              <div class="ai-lab-thumb ai-lab-thumb-3"></div>
+            </div>
+            <p class="ai-lab-card-label">Pollinations.ai · flux · no key required</p>
+            <p class="ai-lab-card-desc">flux, flux-realism, flux-anime, flux-3d, turbo</p>
+          </div>
+
+        </div>
+      </div>
+    </section>
+
     <!-- ══════════════════════════════════════════ CONTACT -->
     <section id="contact" aria-labelledby="contact-heading">
       <div class="contact-glow" aria-hidden="true"></div>
@@ -1400,7 +1596,7 @@
         <div class="contact-inner">
 
           <p class="label reveal" style="justify-content: center;">
-            <span class="label-num">04</span>
+            <span class="label-num">05</span>
             <span class="label-line"></span>
             Get in Touch
           </p>
