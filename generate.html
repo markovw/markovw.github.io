@@ -96,6 +96,7 @@
       z-index: 0;
       pointer-events: none;
       overflow: hidden;
+      clip-path: inset(0);   /* iOS Safari: overflow:hidden unreliable on fixed */
     }
 
     .nebula-blob {
@@ -922,11 +923,13 @@
 
       setState('image');
 
-      // Scroll image into view after it fades in
+      // Scroll image into view — double rAF ensures display:block layout is committed
       if (!restored) {
-        setTimeout(() => {
-          outputImageWrap.scrollIntoView({ behavior: 'smooth', block: 'center' });
-        }, 100);
+        requestAnimationFrame(() => {
+          requestAnimationFrame(() => {
+            outputImageWrap.scrollIntoView({ behavior: 'smooth', block: 'center' });
+          });
+        });
       }
     }
 
