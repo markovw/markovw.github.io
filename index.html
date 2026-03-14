@@ -995,6 +995,22 @@
       margin-bottom: var(--sp-7);
     }
 
+    /* Mobile: 2-col grid so the CTA stays close to the fold */
+    @media (max-width: 599px) {
+      .ai-lab-image-grid {
+        grid-template-columns: repeat(2, 1fr);
+      }
+      /* Third card: span both columns and cap its width so it sits centred */
+      .ai-lab-image-card:last-child {
+        grid-column: 1 / -1;
+        max-width: calc(50% - var(--sp-5) / 2);
+        margin-inline: auto;
+      }
+      .ai-lab-image-card {
+        aspect-ratio: 3 / 2;
+      }
+    }
+
     @media (min-width: 600px) {
       .ai-lab-image-grid { grid-template-columns: repeat(3, 1fr); }
     }
