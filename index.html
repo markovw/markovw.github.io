@@ -1866,20 +1866,46 @@
     }
 
     /* ═══════════════════════════════════════════════════
-       SCROLL TO TOP — robust fix for iOS Safari bfcache
-       and hash-restoration. history.scrollRestoration =
-       'manual' is set in <head> but we also force-reset
-       on load + pageshow (back/forward cache).
+       SCROLL MANAGEMENT
+       - Fresh load → scroll to top
+       - Back/forward navigation → restore saved position
+       history.scrollRestoration = 'manual' is set in
+       <head> so the browser never auto-scrolls; we own it.
     ═══════════════════════════════════════════════════ */
+    const SCROLL_KEY = 'index_scroll_y';
+
+    function isBackForward() {
+      try {
+        const nav = performance.getEntriesByType('navigation')[0];
+        return nav && nav.type === 'back_forward';
+      } catch (e) { return false; }
+    }
+
+    function restoreScroll() {
+      const y = parseInt(sessionStorage.getItem(SCROLL_KEY) || '0', 10);
+      requestAnimationFrame(() => requestAnimationFrame(() => window.scrollTo(0, y)));
+    }
+
     function forceTop() {
-      // Double rAF ensures we fire after browser scroll restoration
       requestAnimationFrame(() => requestAnimationFrame(() => window.scrollTo(0, 0)));
     }
+
+    // Save position whenever the user leaves the page
+    window.addEventListener('pagehide', () => {
+      sessionStorage.setItem(SCROLL_KEY, window.scrollY);
+    });
+
     // Clear any stale hash from URL without triggering a scroll
     if (location.hash) history.replaceState(null, '', location.pathname + location.search);
-    window.addEventListener('load', forceTop);
-    // pageshow fires when page is restored from bfcache (iOS back/forward)
-    window.addEventListener('pageshow', e => { if (e.persisted) forceTop(); });
+
+    window.addEventListener('load', () => {
+      isBackForward() ? restoreScroll() : forceTop();
+    });
+
+    // bfcache restore (iOS Safari back/forward) — always a back navigation
+    window.addEventListener('pageshow', e => {
+      if (e.persisted) restoreScroll();
+    });
 
     /* Smooth-scroll via data-target — href stays as javascript:void(0)
        so the browser never writes a hash to the URL */
