@@ -1460,6 +1460,22 @@
         });
       });
     }
+
+    /* ═══════════════════════════════════════════════════
+       SCROLL TO TOP ON LOAD — prevent browser restoring
+       a hash-based scroll position from previous visit
+    ═══════════════════════════════════════════════════ */
+    if (history.scrollRestoration) history.scrollRestoration = 'manual';
+    window.scrollTo(0, 0);
+
+    /* Smooth-scroll anchor links without writing hash to URL */
+    document.querySelectorAll('a[href^="#"]').forEach(link => {
+      link.addEventListener('click', e => {
+        e.preventDefault();
+        const target = document.querySelector(link.getAttribute('href'));
+        if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+      });
+    });
   </script>
 </body>
 </html>
