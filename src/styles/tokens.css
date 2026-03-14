@@ -28,6 +28,7 @@
   --sp-8:  64px;
   --sp-9:  96px;
   --sp-10: 128px;
+  --nav-scroll-offset: 88px;
 
   /* Typography */
   --ff-display: 'Space Grotesk', system-ui, sans-serif;
