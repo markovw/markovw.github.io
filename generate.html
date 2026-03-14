@@ -855,7 +855,8 @@
 
   <script>
     /* ─── Config ────────────────────────────────────────────────── */
-    const PROXY_URL = 'https://gemini-image-proxy.keybananchik.workers.dev';
+    const PROXY_URL  = 'https://gemini-image-proxy.keybananchik.workers.dev';
+    const CACHE_KEY  = 'generator_last_image';
 
     /* ─── Elements ──────────────────────────────────────────────── */
     const promptInput   = document.getElementById('promptInput');
@@ -886,6 +887,58 @@
       '4:3':  [4, 3],
       '3:4':  [3, 4],
     };
+
+    /* ─── Cache helpers ─────────────────────────────────────────── */
+    function saveCache(b64, mimeType, prompt, ratio, model) {
+      try {
+        localStorage.setItem(CACHE_KEY, JSON.stringify({ b64, mimeType, prompt, ratio, model, ts: Date.now() }));
+      } catch (e) { /* QuotaExceededError — silently skip */ }
+    }
+
+    function displayImage(b64, mimeType, prompt, ratio, model, restored) {
+      if (currentBlobUrl) { URL.revokeObjectURL(currentBlobUrl); currentBlobUrl = null; }
+
+      const bytes = Uint8Array.from(atob(b64), c => c.charCodeAt(0));
+      const blob  = new Blob([bytes], { type: mimeType });
+      currentBlobUrl = URL.createObjectURL(blob);
+
+      outputImg.src = currentBlobUrl;
+      outputImg.alt = `Generated: ${prompt}`;
+      outputImg.classList.remove('loaded');
+      requestAnimationFrame(() => requestAnimationFrame(() => outputImg.classList.add('loaded')));
+
+      const ext = mimeType.split('/')[1] || 'png';
+      const restoredBadge = restored
+        ? ' &nbsp;<span style="color:var(--c-text-3);font-size:10px">↩ last session</span>'
+        : '';
+      metaInfo.innerHTML =
+        `Model: <span>${model}</span> &nbsp;|&nbsp; ` +
+        `Ratio: <span>${ratio}</span> &nbsp;|&nbsp; ` +
+        `Format: <span>${mimeType.split('/')[1].toUpperCase()}</span>` +
+        restoredBadge;
+
+      downloadBtn.href = currentBlobUrl;
+      downloadBtn.download = `generated-${Date.now()}.${ext}`;
+
+      setState('image');
+    }
+
+    function restoreFromCache() {
+      try {
+        const raw = localStorage.getItem(CACHE_KEY);
+        if (!raw) return false;
+        const { b64, mimeType, prompt, ratio, model } = JSON.parse(raw);
+        if (!b64) return false;
+
+        /* Restore prompt + selects */
+        promptInput.value = prompt || '';
+        resizeTextarea();
+        if (ratio) ratioSelect.value = ratio;
+
+        displayImage(b64, mimeType, prompt, ratio, model, true);
+        return true;
+      } catch (e) { return false; }
+    }
 
     /* ─── Auto-resize textarea ──────────────────────────────────── */
     function resizeTextarea() {
@@ -928,12 +981,6 @@
       skeletonInner.style.aspectRatio = `${rw} / ${rh}`;
       setState('loading');
 
-      /* Revoke previous blob URL to free memory */
-      if (currentBlobUrl) {
-        URL.revokeObjectURL(currentBlobUrl);
-        currentBlobUrl = null;
-      }
-
       const body = { prompt, model, ratio };
 
       function cleanup() {
@@ -967,29 +1014,8 @@
 
         const { mimeType, data: b64 } = imagePart.inlineData;
 
-        /* Convert base64 → Blob → Object URL */
-        const bytes = Uint8Array.from(atob(b64), c => c.charCodeAt(0));
-        const blob  = new Blob([bytes], { type: mimeType });
-        currentBlobUrl = URL.createObjectURL(blob);
-
-        /* Swap image */
-        outputImg.src = currentBlobUrl;
-        outputImg.alt = `Generated: ${prompt}`;
-        outputImg.classList.remove('loaded');
-        requestAnimationFrame(() => requestAnimationFrame(() => outputImg.classList.add('loaded')));
-
-        /* Meta row */
-        metaInfo.innerHTML =
-          `Model: <span>${model}</span> &nbsp;|&nbsp; ` +
-          `Ratio: <span>${ratio}</span> &nbsp;|&nbsp; ` +
-          `Format: <span>${mimeType.split('/')[1].toUpperCase()}</span>`;
-
-        /* Download */
-        const ext = mimeType.split('/')[1] || 'png';
-        downloadBtn.href = currentBlobUrl;
-        downloadBtn.download = `generated-${Date.now()}.${ext}`;
-
-        setState('image');
+        saveCache(b64, mimeType, prompt, ratio, model);
+        displayImage(b64, mimeType, prompt, ratio, model, false);
 
       } catch (err) {
         if (err.name === 'AbortError') { setState('placeholder'); cleanup(); return; }
@@ -1012,7 +1038,7 @@
     });
 
     /* ─── Init ──────────────────────────────────────────────────── */
-    setState('placeholder');
+    if (!restoreFromCache()) setState('placeholder');
   </script>
 </body>
 </html>
