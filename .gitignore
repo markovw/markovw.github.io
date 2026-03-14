@@ -5,3 +5,7 @@ dist
 .DS_Store
 *.log
 .claude/
+.playwright-mcp/
+ai-lab-snapshot.md
+bio-site/
+*.png
