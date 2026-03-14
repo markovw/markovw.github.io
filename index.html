@@ -228,6 +228,215 @@
     .nav-links a:hover { color: var(--c-text-1); }
 
     /* ============================================================
+       SIGNAL ORB — mobile nav trigger
+    ============================================================ */
+
+    /* Pulse ring animation */
+    @keyframes orbPing {
+      0%   { transform: scale(1);   opacity: .8; }
+      100% { transform: scale(1.7); opacity: 0; }
+    }
+
+    /* Icon rotation on open */
+    @keyframes orbIconOpen {
+      from { transform: rotate(0deg); }
+      to   { transform: rotate(135deg); }
+    }
+    @keyframes orbIconClose {
+      from { transform: rotate(135deg); }
+      to   { transform: rotate(0deg); }
+    }
+
+    /* HUD panel entrance */
+    @keyframes hudIn {
+      from { opacity: 0; transform: translateY(-8px) scale(0.96); }
+      to   { opacity: 1; transform: translateY(0)    scale(1); }
+    }
+    @keyframes hudOut {
+      from { opacity: 1; transform: translateY(0)    scale(1); }
+      to   { opacity: 0; transform: translateY(-8px) scale(0.96); }
+    }
+
+    /* Link row stagger */
+    @keyframes linkSlide {
+      from { opacity: 0; transform: translateX(8px); }
+      to   { opacity: 1; transform: translateX(0); }
+    }
+
+    /* ── Orb button ─────────────────────────────────────────── */
+    .nav-orb {
+      display: none; /* shown only on mobile via media query below */
+      position: relative;
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: rgba(34, 211, 238, .08);
+      border: 1px solid rgba(34, 211, 238, .35);
+      cursor: pointer;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      /* no outline; :focus-visible already defined globally */
+      transition: background 200ms ease, border-color 200ms ease;
+    }
+    .nav-orb:hover {
+      background: rgba(34, 211, 238, .14);
+      border-color: rgba(34, 211, 238, .6);
+    }
+
+    /* Pulsing ring via ::before */
+    .nav-orb::before {
+      content: '';
+      position: absolute;
+      inset: -4px;
+      border-radius: 50%;
+      border: 1.5px solid var(--c-cyan);
+      animation: orbPing 2s var(--ease-out) infinite;
+      pointer-events: none;
+    }
+
+    /* Icon inside orb */
+    .nav-orb-icon {
+      font-size: 14px;
+      line-height: 1;
+      color: var(--c-cyan);
+      user-select: none;
+      pointer-events: none;
+      transition: transform 280ms var(--ease-spring);
+    }
+
+    /* Hover: slight tilt */
+    .nav-orb:hover .nav-orb-icon {
+      transform: rotate(15deg);
+    }
+
+    /* When open: icon rotates to × and glow brightens */
+    .nav-orb[aria-expanded="true"] {
+      background: rgba(34, 211, 238, .16);
+      border-color: rgba(34, 211, 238, .75);
+      box-shadow: 0 0 16px rgba(34, 211, 238, .25);
+    }
+    .nav-orb[aria-expanded="true"] .nav-orb-icon {
+      transform: rotate(135deg);
+    }
+    /* Pause the ping ring while open — less visual noise */
+    .nav-orb[aria-expanded="true"]::before {
+      animation-play-state: paused;
+      opacity: .35;
+    }
+
+    /* ── Floating HUD panel ─────────────────────────────────── */
+    .nav-hud {
+      position: fixed;
+      top: 60px;
+      right: var(--sp-4);
+      width: 220px;
+      background: rgba(3, 4, 13, .92);
+      backdrop-filter: blur(20px) saturate(160%);
+      -webkit-backdrop-filter: blur(20px) saturate(160%);
+      border: 1px solid rgba(255, 255, 255, .1);
+      border-radius: var(--r-md);
+      padding: var(--sp-3) 0 var(--sp-3);
+      z-index: 200;
+      transform-origin: top right;
+
+      /* Hidden state */
+      opacity: 0;
+      transform: translateY(-8px) scale(0.96);
+      pointer-events: none;
+      visibility: hidden;
+    }
+
+    /* Open state — driven by JS adding .is-open */
+    .nav-hud.is-open {
+      animation: hudIn 220ms var(--ease-out) forwards;
+      pointer-events: auto;
+      visibility: visible;
+    }
+
+    /* Closing state — JS adds .is-closing */
+    .nav-hud.is-closing {
+      animation: hudOut 180ms var(--ease-in) forwards;
+      pointer-events: none;
+    }
+
+    /* Nav link rows */
+    .nav-hud-list {
+      list-style: none;
+      padding: 0;
+      margin: 0;
+    }
+
+    .nav-hud-list li {
+      opacity: 0; /* stagger applied inline via JS */
+    }
+    .nav-hud.is-open .nav-hud-list li {
+      animation: linkSlide 200ms var(--ease-out) both;
+    }
+
+    .nav-hud-list a {
+      display: flex;
+      align-items: center;
+      gap: var(--sp-3);
+      padding: 10px var(--sp-4);
+      font-family: var(--ff-display);
+      font-size: 13px;
+      font-weight: 500;
+      letter-spacing: .06em;
+      color: var(--c-text-2);
+      text-transform: uppercase;
+      transition: color 160ms ease, background 160ms ease;
+      cursor: pointer;
+    }
+    .nav-hud-list a:hover {
+      color: var(--c-text-1);
+      background: rgba(255, 255, 255, .04);
+    }
+
+    /* Cyan left-border accent per row */
+    .nav-hud-list a::before {
+      content: '';
+      display: block;
+      width: 2px;
+      height: 14px;
+      border-radius: 1px;
+      background: var(--c-cyan);
+      opacity: .55;
+      flex-shrink: 0;
+      transition: opacity 160ms ease;
+    }
+    .nav-hud-list a:hover::before {
+      opacity: 1;
+    }
+
+    /* Divider above footer label */
+    .nav-hud-divider {
+      height: 1px;
+      background: rgba(255, 255, 255, .07);
+      margin: var(--sp-2) var(--sp-4);
+    }
+
+    /* "— markovw" footer label */
+    .nav-hud-footer {
+      padding: var(--sp-2) var(--sp-4) 0;
+      font-family: var(--ff-mono);
+      font-size: 10px;
+      letter-spacing: .14em;
+      color: var(--c-text-3);
+      user-select: none;
+    }
+
+    /* ── Mobile-only visibility ─────────────────────────────── */
+    @media (max-width: 639px) {
+      .nav-orb { display: flex; }
+    }
+
+    /* On desktop the HUD is never shown regardless of state */
+    @media (min-width: 640px) {
+      .nav-hud { display: none !important; }
+    }
+
+    /* ============================================================
        HERO
     ============================================================ */
     #hero {
@@ -1304,16 +1513,51 @@
     <div class="container">
       <div class="nav-inner">
         <a href="javascript:void(0)" data-target="#hero" class="nav-logo">// markov.dev</a>
-        <ul class="nav-links">
+
+        <!-- Desktop nav links -->
+        <ul class="nav-links" aria-label="Site sections">
           <li><a href="javascript:void(0)" data-target="#about">About</a></li>
           <li><a href="javascript:void(0)" data-target="#skills">Skills</a></li>
           <li><a href="javascript:void(0)" data-target="#timeline">Journey</a></li>
           <li><a href="javascript:void(0)" data-target="#ai-lab">AI Lab</a></li>
           <li><a href="javascript:void(0)" data-target="#contact">Contact</a></li>
         </ul>
+
+        <!-- Mobile: signal orb trigger -->
+        <button
+          id="nav-orb"
+          class="nav-orb"
+          aria-label="Open navigation"
+          aria-expanded="false"
+          aria-controls="nav-hud"
+          type="button"
+        >
+          <span class="nav-orb-icon" aria-hidden="true">✦</span>
+        </button>
       </div>
     </div>
+
   </nav>
+
+  <!-- Mobile: floating HUD panel (position:fixed, lives outside nav landmark) -->
+  <div
+    id="nav-hud"
+    class="nav-hud"
+    role="dialog"
+    aria-label="Site navigation"
+    aria-modal="false"
+    aria-hidden="true"
+  >
+    <ul class="nav-hud-list" role="list">
+      <li><a href="javascript:void(0)" data-target="#about">About</a></li>
+      <li><a href="javascript:void(0)" data-target="#skills">Skills</a></li>
+      <li><a href="javascript:void(0)" data-target="#timeline">Journey</a></li>
+      <li><a href="javascript:void(0)" data-target="#ai-lab">AI Lab</a></li>
+      <li><a href="javascript:void(0)" data-target="#contact">Contact</a></li>
+    </ul>
+    <div class="nav-hud-divider" aria-hidden="true"></div>
+    <p class="nav-hud-footer" aria-hidden="true">— markovw</p>
+  </div>
 
   <main>
     <!-- ══════════════════════════════════════════ HERO -->
@@ -1931,6 +2175,100 @@
         if (target) target.scrollIntoView({ behavior: 'smooth', block: 'start' });
       });
     });
+
+    /* ── Signal Orb: mobile nav controller ───────────────────── */
+    (function () {
+      const orb  = document.getElementById('nav-orb');
+      const hud  = document.getElementById('nav-hud');
+      if (!orb || !hud) return;
+
+      let isOpen    = false;
+      let closeTimer = null;
+
+      /* Stagger delays for each link row */
+      const STAGGER_MS = 40;
+
+      function applyStagger () {
+        hud.querySelectorAll('.nav-hud-list li').forEach((li, i) => {
+          li.style.animationDelay = (i * STAGGER_MS) + 'ms';
+        });
+      }
+
+      function openHud () {
+        if (isOpen) return;
+        isOpen = true;
+
+        /* Clear any in-flight close animation */
+        if (closeTimer) {
+          clearTimeout(closeTimer);
+          closeTimer = null;
+          hud.classList.remove('is-closing');
+        }
+
+        /* Reset stagger so it replays every open */
+        hud.querySelectorAll('.nav-hud-list li').forEach(li => {
+          li.style.animationDelay = '';
+        });
+
+        applyStagger();
+        hud.classList.add('is-open');
+        hud.setAttribute('aria-hidden', 'false');
+        orb.setAttribute('aria-expanded', 'true');
+        orb.setAttribute('aria-label', 'Close navigation');
+      }
+
+      function closeHud () {
+        if (!isOpen) return;
+        isOpen = false;
+
+        hud.classList.remove('is-open');
+        hud.classList.add('is-closing');
+        orb.setAttribute('aria-expanded', 'false');
+        orb.setAttribute('aria-label', 'Open navigation');
+        hud.setAttribute('aria-hidden', 'true');
+
+        /* Remove class after animation completes so visibility:hidden kicks in */
+        closeTimer = setTimeout(() => {
+          hud.classList.remove('is-closing');
+          closeTimer = null;
+        }, 200); /* matches hudOut duration */
+      }
+
+      /* Toggle on orb click */
+      orb.addEventListener('click', () => {
+        isOpen ? closeHud() : openHud();
+      });
+
+      /* Tap a HUD link → close panel then smooth-scroll */
+      hud.querySelectorAll('[data-target]').forEach(link => {
+        link.addEventListener('click', () => {
+          closeHud();
+          /* scrollIntoView already attached via the global querySelectorAll above */
+        });
+      });
+
+      /* Close on Escape key */
+      document.addEventListener('keydown', e => {
+        if (e.key === 'Escape' && isOpen) {
+          closeHud();
+          orb.focus(); /* return focus to trigger */
+        }
+      });
+
+      /* Click outside to close */
+      document.addEventListener('pointerdown', e => {
+        if (!isOpen) return;
+        if (!hud.contains(e.target) && e.target !== orb && !orb.contains(e.target)) {
+          closeHud();
+        }
+      }, { passive: true });
+
+      /* On viewport resize past breakpoint, force-close so state is clean */
+      const mql = window.matchMedia('(min-width: 640px)');
+      mql.addEventListener('change', e => {
+        if (e.matches && isOpen) closeHud();
+      });
+    }());
   </script>
 </body>
 </html>
